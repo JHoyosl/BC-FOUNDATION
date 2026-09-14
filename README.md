@@ -21,7 +21,7 @@ escrito antes de escribirlo en código.
 | [`docs/03-principios.md`](docs/03-principios.md) | Las tres reglas que gobiernan todo el diseño: modularidad, multi-tenant, localización. |
 | [`docs/04-glosario.md`](docs/04-glosario.md) | Vocabulario único del proyecto. Si un término no está aquí, no se usa. |
 | [`docs/05-actores-y-roles.md`](docs/05-actores-y-roles.md) | Quién usa el sistema y qué puede hacer cada quien. |
-| [`docs/06-catalogo-modulos.md`](docs/06-catalogo-modulos.md) | Los módulos del producto, su contrato de autonomía y su estado de definición. |
+| [`docs/06-catalogo-modulos.md`](docs/06-catalogo-modulos.md) | Los 20 módulos del producto, su contrato de autonomía y la cola de construcción. |
 | [`docs/modulos/`](docs/modulos/) | Una ficha funcional completa por módulo. |
 | [`docs/decisiones/`](docs/decisiones/) | ADR: cada decisión estructural, con fecha y motivo. |
 | [`docs/bitacora.md`](docs/bitacora.md) | Qué se definió, cuándo, y qué sigue. |
@@ -30,16 +30,18 @@ escrito antes de escribirlo en código.
 
 ## Estado actual
 
-**Fase: definición funcional.** No se escribe código ni se toman decisiones técnicas
-(lenguajes, frameworks, base de datos, despliegue) hasta cerrar el alcance funcional de los
-módulos de la Fase 1.
+**Etapa: definición funcional.** No se escribe código ni se toman decisiones técnicas
+(lenguajes, frameworks, base de datos, despliegue). Se define **un módulo a la vez, hasta
+terminarlo** — ver [`ADR-0005`](docs/decisiones/ADR-0005-construccion-modulo-a-modulo.md).
+
+**Módulo en curso: [`inventario`](docs/modulos/inventario.md)** — 10 preguntas abiertas por cerrar.
 
 | Bloque | Estado |
 |---|---|
 | Visión y alcance | 🟡 Borrador para revisión |
 | Principios de diseño | 🟡 Borrador para revisión |
 | Glosario, actores, catálogo | 🟡 Borrador para revisión |
-| Fichas de módulo | 🔴 1 de 21 (`inventario`, como referencia) |
+| Fichas de módulo | 🟡 `inventario` en curso (1 de 20) |
 | Decisiones técnicas | ⚪ No iniciado (deliberadamente) |
 
 Leyenda: ⚪ no iniciado · 🔴 incompleto · 🟡 borrador · 🟢 aprobado · 🔵 congelado
@@ -48,9 +50,9 @@ Leyenda: ⚪ no iniciado · 🔴 incompleto · 🟡 borrador · 🟢 aprobado ·
 
 ## Antecedente
 
-Existe un MVP previo, pequeño e incompleto. **No define el alcance de este KB.** El KB se
-redacta desde cero para tener una fundación sólida; el MVP servirá luego como insumo de
-migración, no como especificación.
+Existe un MVP previo, pequeño e incompleto, que **solo tuvo pruebas internas: ningún local
+ni usuario de terceros depende de él.** No define el alcance de este KB ni impone
+restricciones de migración. Queda como fuente de aprendizajes, no como especificación.
 
 ---
 

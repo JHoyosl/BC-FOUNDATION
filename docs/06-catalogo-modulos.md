@@ -14,51 +14,51 @@ solo, se vende solo, se define solo.
 Excepción al principio de autonomía (`RN-ARQ-005`): estos módulos son la base de cualquier
 instalación.
 
-| Id | Módulo | Qué hace | Fase | Estado | Ficha |
+| Id | Módulo | Qué hace | Cola | Estado | Ficha |
 |---|---|---|---|---|---|
-| `tenancy` | Tenants y sedes | Alta de negocios, sedes, plan contratado, habilitación de módulos, suscripción. | 0 | ⚪ | — |
-| `iam` | Identidad y permisos | Usuarios del staff, autenticación, roles por sede, registro de auditoría. | 0 | ⚪ | — |
-| `localizacion-co` | Artefacto Colombia | Implementa las interfaces de país: tributos, documento fiscal, moneda, medios de pago, festivos, reglas laborales. | 0 | ⚪ | — |
-| `notificaciones` | Avisos | Envío de avisos a staff y clientes (pedido listo, stock bajo, turno asignado). | 2 | ⚪ | — |
+| `tenancy` | Tenants y sedes | Alta de negocios, sedes, plan contratado, habilitación de módulos, suscripción. | 8 | ⚪ | — |
+| `iam` | Identidad y permisos | Usuarios del staff, autenticación, roles por sede, registro de auditoría. | 9 | ⚪ | — |
+| `localizacion-co` | Artefacto Colombia | Implementa las interfaces de país: tributos, documento fiscal, moneda, medios de pago, festivos, reglas laborales. | 10 | ⚪ | — |
+| `notificaciones` | Avisos | Envío de avisos a staff y clientes (pedido listo, stock bajo, turno asignado). | 20 | ⚪ | — |
 
 ---
 
 ## Dominio Operación
 
-| Id | Módulo | Qué hace | Fase | Estado | Ficha |
+| Id | Módulo | Qué hace | Cola | Estado | Ficha |
 |---|---|---|---|---|---|
-| `catalogo` | Catálogo y carta | Productos vendibles, categorías, modificadores, precios, cartas por zona y horario. | 1 | ⚪ | — |
-| `salon-mesas` | Salón y mesas | Zonas, mesas, capacidad, estado de la mesa, generación e impresión de QR. | 1 | ⚪ | — |
-| `pos` | Punto de venta | Abrir mesa, tomar pedido, gestionar la cuenta, descuentos, anulaciones, cobro. | 1 | ⚪ | — |
-| `caja` | Caja y cierres | Apertura de turno, base, movimientos de efectivo, arqueo, cierre de turno y de día. | 1 | ⚪ | — |
-| `kds` | Pantalla de preparación | Comandas por estación, tiempos, estados de preparación. | 1 | ⚪ | — |
+| `catalogo` | Catálogo y carta | Productos vendibles, categorías, modificadores, precios, cartas por zona y horario. | 2 | ⚪ | — |
+| `salon-mesas` | Salón y mesas | Zonas, mesas, capacidad, estado de la mesa, generación e impresión de QR. | 3 | ⚪ | — |
+| `pos` | Punto de venta | Abrir mesa, tomar pedido, gestionar la cuenta, descuentos, anulaciones, cobro. | 4 | ⚪ | — |
+| `caja` | Caja y cierres | Apertura de turno, base, movimientos de efectivo, arqueo, cierre de turno y de día. | 5 | ⚪ | — |
+| `kds` | Pantalla de preparación | Comandas por estación, tiempos, estados de preparación. | 7 | ⚪ | — |
 
 ---
 
 ## Dominio Back office
 
-| Id | Módulo | Qué hace | Fase | Estado | Ficha |
+| Id | Módulo | Qué hace | Cola | Estado | Ficha |
 |---|---|---|---|---|---|
 | `inventario` | Inventario | Insumos, unidades, bodegas, existencias, movimientos, recetas, costeo, mermas, conteos. | 1 | 🟡 | [ver](modulos/inventario.md) |
-| `compras` | Compras y proveedores | Proveedores, órdenes de compra, recepción de mercancía, cuentas por pagar. | 2 | ⚪ | — |
-| `schedule` | Turnos y personal | Plantilla de personal, planificación de turnos, asistencia, novedades. | 2 | ⚪ | — |
-| `reportes` | Reportes y BI | Ventas, costos, márgenes, productos, comparativos entre sedes, exportación. | 1 (básico) / 3 (avanzado) | ⚪ | — |
+| `compras` | Compras y proveedores | Proveedores, órdenes de compra, recepción de mercancía, cuentas por pagar. | 15 | ⚪ | — |
+| `schedule` | Turnos y personal | Plantilla de personal, planificación de turnos, asistencia, novedades. | 16 | ⚪ | — |
+| `reportes` | Reportes y BI | Ventas, costos, márgenes, productos, comparativos entre sedes, exportación. | 17 | ⚪ | — |
 
 ---
 
 ## Dominio Cliente final
 
-| Id | Módulo | Qué hace | Fase | Estado | Ficha |
+| Id | Módulo | Qué hace | Cola | Estado | Ficha |
 |---|---|---|---|---|---|
-| `pedidos-qr` | Pedido desde la mesa | Escaneo del QR, sesión de mesa, carta en el teléfono, pedido, seguimiento. | 1 | ⚪ | — |
-| `identidad-cliente` | Identidad del cliente | Cliente anónimo, alias, cuenta opcional, perfil, historial, consentimientos. | 2 | ⚪ | — |
-| `pagos` | Pagos del cliente | Pago en línea, división de cuenta, propina, comprobante. | 2 | ⚪ | — |
-| `gamecenter` | Gamecenter | Catálogo de juegos por sede, partidas, rankings, torneos, premios. | 2 | ⚪ | — |
-| `social` | Capa social | Interacción anónima entre asistentes de una misma sede: mensajes, retos, reacciones. | 2 | ⚪ | — |
-| `fidelizacion` | Fidelización | Puntos, niveles, cupones, promociones, campañas. | 3 | ⚪ | — |
-| `reservas` | Reservas | Reserva de mesa, confirmación, no-show. | 3 | ⚪ | — |
+| `pedidos-qr` | Pedido desde la mesa | Escaneo del QR, sesión de mesa, carta en el teléfono, pedido, seguimiento. | 6 | ⚪ | — |
+| `identidad-cliente` | Identidad del cliente | Cliente anónimo, alias, cuenta opcional, perfil, historial, consentimientos. | 13 | ⚪ | — |
+| `pagos` | Pagos del cliente | Pago en línea, división de cuenta, propina, comprobante. | 14 | ⚪ | — |
+| `gamecenter` | Gamecenter | Catálogo de juegos por sede, partidas, rankings, torneos, premios. | 11 | ⚪ | — |
+| `social` | Capa social | Interacción anónima entre asistentes de una misma sede: mensajes, retos, reacciones. | 12 | ⚪ | — |
+| `fidelizacion` | Fidelización | Puntos, niveles, cupones, promociones, campañas. | 18 | ⚪ | — |
+| `reservas` | Reservas | Reserva de mesa, confirmación, no-show. | 19 | ⚪ | — |
 
-**Total: 21 módulos.**
+**Total: 20 módulos.**
 
 ---
 
@@ -125,11 +125,17 @@ Prueba que todo módulo debe pasar: **¿qué hace si es lo único instalado?**
 
 ---
 
-## Orden de definición propuesto
+## Cola de construcción
 
-El orden importa: definir un módulo aclara el vocabulario de los siguientes.
+**Un módulo a la vez, hasta terminarlo.** No hay fases y no hay módulos que se construyan
+juntos — ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md). Un módulo
+está terminado cuando pasa su checklist de cierre, **con cero preguntas abiertas**
+(`RN-ARQ-006`).
 
-1. `inventario` — 🟡 hecho. Es el módulo que más reglas tiene y el que mejor prueba el principio de autonomía.
+El orden también importa por otra razón: definir un módulo aclara el vocabulario de los
+siguientes.
+
+1. **`inventario` — 🟡 EN CURSO.** Es el módulo con más reglas, el que mejor prueba el principio de autonomía y el que fija el vocabulario central. Faltan 10 preguntas abiertas por cerrar.
 2. `catalogo` — define producto, receta y precio; desbloquea POS y pedidos-qr.
 3. `salon-mesas` — define zona, mesa y QR; desbloquea pedidos-qr.
 4. `pos` — el corazón de la operación.

@@ -1,4 +1,4 @@
-# Alcance y fases
+# Alcance y cola de construcción
 
 > **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-09-14
 
@@ -35,55 +35,53 @@ Está fuera, deliberadamente:
 - Estimaciones de esfuerzo y cronograma de desarrollo.
 - Migración del MVP existente.
 
-Esas cosas se abren **después** de que la Fase 1 funcional esté 🟢 aprobada.
+Esas cosas se abren **después**, módulo por módulo, una vez su definición funcional esté 🟢 aprobada.
 
-## 3. Fases del producto
+## 3. Cola de construcción
 
-Las fases ordenan **qué se define y se construye primero**. Un módulo en Fase 2 puede
-definirse antes si conviene, pero no se construye antes.
+> **No hay fases.** Se define y se construye **un módulo a la vez, hasta terminarlo**, y se
+> pasa al siguiente. Ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md).
 
-### Fase 0 — Fundación de plataforma
+Un módulo está terminado cuando pasa su checklist de cierre, incluyendo **cero preguntas
+abiertas** (`RN-ARQ-006`).
 
-Sin esto no existe nada más. Es la única capa que no es opcional.
+### En curso
 
-- `tenancy` — tenants, sedes, planes, habilitación de módulos
-- `iam` — usuarios del staff, roles, permisos
-- `localizacion-co` — artefacto Colombia (moneda, tributos, identificación fiscal)
+| # | Módulo | Estado | Qué falta |
+|---|---|---|---|
+| 1 | [`inventario`](modulos/inventario.md) | 🟡 Borrador | Cerrar 10 preguntas abiertas y aprobar |
 
-### Fase 1 — Operación mínima vendible
+### Cola
 
-El objetivo de la Fase 1 es que **un bar pueda operar un día completo con Barscode**, y que
-el cliente pueda pedir desde la mesa.
+El orden es **reordenable**. Al terminar cada módulo se revisa cuál sigue, con dos
+criterios: *(a)* ¿vale por sí solo? *(b)* ¿su vocabulario desbloquea a los siguientes?
 
-- `catalogo` — productos, carta, modificadores, precios
-- `salon-mesas` — zonas, mesas, generación de QR
-- `pos` — venta, cuenta, cobro
-- `caja` — apertura, arqueo, cierre
-- `pedidos-qr` — sesión de mesa por QR, carta y pedido desde el teléfono
-- `kds` — comandas en cocina y barra
-- `inventario` — stock, movimientos, costos
-- `reportes` (básico) — ventas del día, cierre, productos más vendidos
+```
+inventario  ←  en curso
+    │
+    ├─ catalogo          productos, recetas, cartas, precios
+    ├─ salon-mesas       zonas, mesas, QR
+    ├─ pos               venta, cuenta, cobro
+    ├─ caja              apertura, arqueo, cierre
+    ├─ pedidos-qr        sesión de mesa, pedido desde el teléfono
+    ├─ kds               comandas en cocina y barra
+    │
+    ├─ tenancy · iam · localizacion-co        plataforma
+    │
+    ├─ gamecenter · social · identidad-cliente · pagos
+    │
+    └─ compras · schedule · reportes · fidelizacion · reservas · notificaciones
+```
 
-### Fase 2 — Diferenciación y profundidad
+### Por qué la plataforma va en medio y no al principio
 
-- `identidad-cliente` — cuenta del cliente, perfil, anonimato persistente
-- `gamecenter` — juegos, rankings, torneos por sede
-- `social` — interacción anónima entre asistentes del mismo local
-- `pagos` — pago en línea, división de cuenta, propina
-- `compras` — proveedores, órdenes, recepción
-- `schedule` — turnos y asistencia del personal
+`tenancy`, `iam` y `localizacion-co` son transversales y obligatorios, pero definirlos
+primero obligaría a **adivinar** qué permisos, qué configuración y qué reglas de país
+necesitan los módulos funcionales. Así que cada módulo documenta lo que **necesita** de la
+plataforma, y la plataforma se define después con esa lista en mano.
 
-### Fase 3 — Escala
-
-- `fidelizacion` — puntos, cupones, promociones
-- `reservas` — reserva de mesa
-- `reportes` (avanzado) — BI, márgenes, comparativos entre sedes
-- `multi-sede` avanzado — consolidación, transferencias entre sedes
-- Segundo artefacto de país
-
-> `PA-ALC-001` — El Gamecenter es el diferenciador comercial del producto y hoy está en Fase 2.
-> ¿Tiene sentido vender Barscode en Fase 1 sin él? Posible que una versión mínima del
-> Gamecenter deba subir a Fase 1. Decisión pendiente (ver `PA-VIS-004`).
+Mientras tanto, los módulos asumen lo mínimo: que existe un tenant, que existe una sede,
+que el usuario está identificado y que hay un artefacto de país al que preguntarle.
 
 ## 4. Fuera de alcance del producto
 
@@ -105,8 +103,9 @@ Cosas que Barscode **no** hace, escritas para que nadie las asuma:
 - `RES-001` — Mercado inicial Colombia. Moneda COP. Todo lo tributario detrás del artefacto de país.
 - `RES-002` — El cliente final debe poder usar el flujo de pedido **sin instalar la app**. El QR abre web.
 - `RES-003` — El local puede tener conectividad inestable. El POS y el KDS deben tener un comportamiento definido sin red (ver `PA-ALC-002`).
-- `RES-004` — Existe un MVP previo con posibles usuarios. No condiciona el diseño, pero puede condicionar la transición.
+- `RES-004` — ~~Existe un MVP previo con posibles usuarios.~~ **Levantada** (2026-09-14): el MVP solo tuvo pruebas internas. Sin usuarios de terceros, sin restricción de migración.
 - `RES-005` — Venta de licor: el producto opera en un contexto de consumo de alcohol; hay implicaciones de edad y de responsabilidad que deben quedar definidas en `pedidos-qr` y `identidad-cliente`.
+- `RES-006` — Segmento inicial **mixto bar-restaurante**: cocina y barra conviven. Ninguna definición puede asumir solo bar ni solo restaurante.
 
 ## 6. Supuestos
 
@@ -116,8 +115,8 @@ Cosas que Barscode **no** hace, escritas para que nadie las asuma:
 
 ## 7. Preguntas abiertas
 
-- `PA-ALC-001` — ¿El Gamecenter sube a Fase 1? (ver arriba)
-- `PA-ALC-002` — ¿Se exige operación sin conexión (offline) en Fase 1, o se asume conectividad? Define buena parte de la complejidad de POS y KDS.
-- `PA-ALC-003` — ¿La Fase 1 incluye facturación electrónica DIAN o se limita a comprobante de venta?
-- `PA-ALC-004` — ¿App móvil nativa es Fase 1 o Fase 2? La web por QR cubre al cliente; la app nativa es lo que habilita bien el Gamecenter.
-- `PA-ALC-005` — ¿Hay una fecha objetivo o un compromiso externo que condicione el orden de las fases?
+- ~~`PA-ALC-001`~~ — **Disuelta** (2026-09-14): no hay fases. Ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md).
+- `PA-ALC-002` — ¿Se exige operación sin conexión (offline)? Define buena parte de la complejidad de `pos`, `kds` e `inventario`. **Afecta a `inventario` vía `PA-INV-004`: hay que resolverla antes de cerrarlo.**
+- `PA-ALC-003` — ¿Se incluye facturación electrónica DIAN o basta el comprobante de venta? Se resuelve al definir `localizacion-co`.
+- `PA-ALC-004` — ¿App móvil nativa o basta la web por QR? La web cubre el pedido; la app nativa es lo que habilita bien el Gamecenter. Se resuelve al definir `pedidos-qr`.
+- `PA-ALC-005` — ¿Hay una fecha objetivo o un compromiso externo que condicione el orden de la cola?

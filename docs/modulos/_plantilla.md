@@ -1,6 +1,6 @@
 # Módulo: `<id-modulo>` — <Nombre>
 
-> **Estado:** ⚪ No iniciado · **Dueño:** Jorge Hoyos · **Fase:** <0|1|2|3> · **Actualizado:** AAAA-MM-DD
+> **Estado:** ⚪ No iniciado · **Dueño:** Jorge Hoyos · **Orden en la cola:** <n> · **Actualizado:** AAAA-MM-DD
 
 Copiar este archivo a `docs/modulos/<id-modulo>.md` y completar. **Ninguna sección se borra.**
 Si una sección no aplica, se escribe *"No aplica porque…"*. Los huecos silenciosos son

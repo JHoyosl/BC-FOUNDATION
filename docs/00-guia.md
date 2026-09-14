@@ -17,8 +17,8 @@ con qué estados y qué límites.
 **No es:** diseño técnico. Aquí no se decide lenguaje, framework, base de datos,
 infraestructura ni esquema de tablas. Cuando el texto menciona una "interfaz" entre módulos,
 se refiere al **contrato funcional** (qué información pide uno y qué le responde el otro),
-no a un endpoint HTTP. La capa técnica se abrirá en `docs/tecnico/` cuando la Fase 1
-funcional esté 🟢.
+no a un endpoint HTTP. La capa técnica de cada módulo se abrirá en `docs/tecnico/` cuando su
+definición funcional esté 🟢.
 
 ## Convenciones
 

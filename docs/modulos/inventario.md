@@ -1,6 +1,6 @@
 # Módulo: `inventario` — Inventario
 
-> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Fase:** 1 · **Actualizado:** 2026-09-14
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Orden:** 1 (en curso) · **Actualizado:** 2026-09-14
 
 Esta ficha es la **referencia** del KB: define la forma que deben tener todas las demás.
 
@@ -451,7 +451,7 @@ diferencia genera un movimiento de ajuste confirmado. Un conteo cerrado no se re
 - `PA-INV-002` — ¿Costo promedio ponderado es suficiente, o el negocio necesita FIFO o costo estándar? CPP es lo habitual en hostelería, pero conviene confirmarlo.
 - `PA-INV-003` — ¿Se necesita conversión entre dimensiones (ml ↔ g mediante densidad)? Es común en cocina y complica el modelo de unidades.
 - `PA-INV-004` — **Sin conexión:** si el POS opera offline, ¿las salidas de inventario se encolan y se aplican al reconectar? Depende de `PA-ALC-002`.
-- `PA-INV-005` — ¿El control de lote y vencimiento entra en Fase 1 o se aplaza? Es relevante para cocina, casi irrelevante para un bar de licores.
+- `PA-INV-005` — ¿El control de lote y vencimiento entra en la primera versión del módulo o se aplaza? Con segmento **mixto bar-restaurante** deja de ser opcional para la parte de cocina.
 - `PA-INV-006` — ¿Hay producción interna que transforme insumos en otros insumos (almíbar, infusión, despiece de carne)? Si la hay, falta el concepto de *orden de producción*.
 - `PA-INV-007` — ¿Se necesita inventario de envases retornables y su control de devolución?
 - `PA-INV-008` — ¿Quién define las recetas en la práctica: el administrador o el chef/bartender? Si es el segundo, hace falta un flujo de propuesta y aprobación.

@@ -64,7 +64,7 @@ Cada sede tiene exactamente un artefacto de país activo, determinado por su ubi
 
 - `PA-ARQ-010` — ¿Barscode emite la factura electrónica directamente ante la DIAN o se
   integra con un proveedor tecnológico autorizado? Alto impacto en costo, riesgo y tiempo.
-- `PA-ARQ-011` — ¿La Fase 1 incluye facturación electrónica o basta el documento equivalente?
+- `PA-ARQ-011` — ¿Se incluye facturación electrónica o basta el documento equivalente?
 - `PA-ARQ-013` — ¿Las reglas laborales del módulo `schedule` viven en el artefacto de país o
   se aíslan aparte?
 

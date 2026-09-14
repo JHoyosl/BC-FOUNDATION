@@ -60,7 +60,32 @@ suscripción todos los meses.
 
 ## 4. Usuarios
 
-### Usuarios primarios del negocio
+### 4.1 Segmento inicial: mixto bar-restaurante
+
+> Resuelve `PA-VIS-003` (2026-09-14).
+
+Barscode apunta a establecimientos donde **cocina y barra conviven**: el gastrobar, el
+restaurante que se vuelve bar de noche, el sitio de comida y tragos. No al bar de tragos
+puro ni al restaurante familiar puro, sino al que hace las dos cosas.
+
+Es el segmento más exigente, y eso condiciona el diseño:
+
+| Exigencia del segmento | Qué obliga |
+|---|---|
+| Se vende licor **y** comida | El catálogo maneja con igual solvencia botella, trago, coctel y plato con receta |
+| Dos naturalezas de inventario | Licor se mide en volumen y se sirve por trago desde botella abierta; comida se mide en masa y se porciona con merma |
+| Dos estaciones reales | Cocina y barra preparan en paralelo, con tiempos distintos. El KDS no es opcional |
+| Conversión entre dimensiones | Recetas de cocina mezclan ml y g. Hace falta densidad (`PA-INV-003`) |
+| Perecederos de verdad | La comida vence; el licor casi no. Lote y vencimiento dejan de ser opcionales (`PA-INV-005`) |
+| Producción interna | Almíbares, infusiones, salsas, despiece. Un insumo se transforma en otro (`PA-INV-006`) |
+| Franja horaria amplia | Almuerzo y noche son operaciones distintas: carta, personal y ritmo cambian |
+| Gamecenter con sentido | Funciona de noche, en la franja bar. Debe poder apagarse en la franja restaurante |
+
+**Consecuencia para el KB:** ninguna ficha puede asumir "esto es un bar" ni "esto es un
+restaurante". Donde las dos naturalezas difieran, la ficha debe cubrir ambas
+explícitamente.
+
+### 4.2 Usuarios primarios del negocio
 
 - **Dueño / administrador.** Quiere saber si está ganando plata. Mira reportes, márgenes,
   costos. Decide la carta y los precios.
@@ -69,7 +94,7 @@ suscripción todos los meses.
 - **Cocina / barra.** Recibe comandas y las marca listas.
 - **Bodeguero / jefe de compras.** Recibe mercancía, controla stock, registra mermas.
 
-### Usuarios del lado cliente
+### 4.3 Usuarios del lado cliente
 
 - **Cliente anónimo.** Escanea el QR, no crea cuenta. Puede ver carta, pedir y jugar.
   Es el caso más frecuente y el que define el diseño por defecto.
@@ -146,14 +171,17 @@ contratables por separado**, con un núcleo mínimo obligatorio.
 ## 10. Preguntas abiertas
 
 - `PA-VIS-001` — ¿El cobro es por sede, por módulo, por volumen de transacciones, o una mezcla? Define el módulo `tenancy` completo.
-- `PA-VIS-002` — ¿Barscode procesa los pagos (y por tanto maneja dinero de terceros) o solo integra pasarelas y el dinero va directo al negocio? Impacto regulatorio y de tesorería muy alto.
-- `PA-VIS-003` — ¿Cuál es el segmento inicial exacto: bares de coctelería, discotecas, restaurantes casuales, cadenas? El Gamecenter no tiene el mismo sentido en un restaurante familiar que en un bar.
-- `PA-VIS-004` — ¿El Gamecenter es un diferenciador de venta desde el día uno o una funcionalidad de Fase 2? Afecta qué se construye primero.
+- ~~`PA-VIS-002`~~ — **Escalada a [`ADR-0004`](decisiones/ADR-0004-procesamiento-de-pagos.md)** (2026-09-14). Decisión pendiente, documentada como tal.
+- ~~`PA-VIS-003`~~ — **Resuelta** (2026-09-14): segmento inicial **mixto bar-restaurante**. Ver sección 4.1.
+- ~~`PA-VIS-004`~~ — **Disuelta** (2026-09-14): no se construye por fases sino por módulos independientes. Ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md).
 - `PA-VIS-005` — ¿Hay competidores directos en Colombia contra los que haya que posicionarse explícitamente?
-- `PA-VIS-006` — ¿El "MVP pequeño" existente tiene usuarios reales en algún local hoy? Si los tiene, hay una restricción de migración que aún no está documentada.
+- ~~`PA-VIS-006`~~ — **Resuelta** (2026-09-14): el MVP solo tuvo pruebas del propio Jorge. Sin usuarios de terceros, sin restricción de migración.
 
 ## 11. Nota sobre el MVP existente
 
-Existe un MVP previo. **Este KB se redacta sin heredar sus decisiones.** El MVP se tratará
-más adelante como insumo de migración y como fuente de aprendizajes, nunca como
+Existe un MVP previo, pero **solo tuvo pruebas internas de Jorge: ningún local ni usuario
+de terceros depende de él** (`PA-VIS-006`, resuelta 2026-09-14).
+
+Consecuencia: **no hay restricción de migración, de continuidad ni de datos heredados.**
+El KB se redacta con libertad total. El MVP queda como fuente de aprendizajes, nunca como
 especificación implícita. Si alguna definición de este KB contradice al MVP, manda el KB.

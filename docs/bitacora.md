@@ -80,3 +80,61 @@ Estas bloquean o condicionan el trabajo siguiente:
 | `inventario` | 🟡 |
 | Otros 20 módulos | ⚪ |
 | Capa técnica | ⚪ (no iniciada a propósito) |
+
+---
+
+## 2026-09-14 — Sesión 2: repo en GitHub y cierre de bloqueantes
+
+### Infraestructura
+
+- Repo publicado en **https://github.com/JHoyosl/BC-FOUNDATION**, rama `main`, commit `405f7f7`.
+  Contenido verificado byte por byte contra la copia de trabajo.
+- Ruta de trabajo en la máquina `pc` (Windows): `E:\dev\BC-FOUNDATION`.
+  Al cambiar de máquina hay que confirmar la ruta antes de tocar nada.
+- Decidido: las próximas sesiones se abren desde **claude.ai/code seleccionando
+  `BC-FOUNDATION`**, para que los commits los haga Claude directamente.
+
+### Decisiones tomadas
+
+| ADR | Decisión |
+|---|---|
+| [`ADR-0004`](decisiones/ADR-0004-procesamiento-de-pagos.md) | **Abierta a propósito.** ¿Barscode custodia el dinero de los pagos o solo integra pasarelas? Documentada sin resolver; bloquea el módulo `pagos`. |
+| [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md) | **Se elimina el plan de fases.** Se construye un módulo a la vez, hasta terminarlo. Primero `inventario`. |
+
+`ADR-0005` corrige una contradicción del KB: `ADR-0001` decía que cada módulo vale por sí
+solo, y a la vez el alcance los agrupaba en fases que debían terminar juntas. Se eliminó el
+agrupamiento y se reemplazó por una cola reordenable.
+
+### Preguntas cerradas
+
+| Id | Resolución |
+|---|---|
+| `PA-VIS-003` | **Segmento: mixto bar-restaurante.** Cocina y barra conviven. Es el caso más exigente: dos naturalezas de inventario (volumen/masa), dos estaciones, conversión entre dimensiones, perecederos reales, producción interna. |
+| `PA-VIS-002` | Escalada a `ADR-0004`. |
+| `PA-VIS-004` | Disuelta: sin fases, la pregunta de "¿el Gamecenter sube a Fase 1?" no aplica. |
+| `PA-VIS-006` | El MVP solo tuvo pruebas de Jorge. **Sin usuarios de terceros, sin restricción de migración.** `RES-004` levantada. |
+| `PA-ALC-001` | Disuelta por `ADR-0005`. |
+
+### Correcciones
+
+- El catálogo decía "21 módulos"; el conteo real es **20**. Corregido en catálogo, README y
+  resúmenes.
+- La columna *Fase* del catálogo se reemplazó por *Cola*, con la posición de cada módulo.
+- Se eliminaron las referencias a "Fase 1" repartidas por guía, principios, alcance y ADR-0003.
+
+### Efecto del segmento sobre `inventario`
+
+Elegir mixto bar-restaurante convierte cuatro preguntas abiertas de "quizá" en "sí":
+
+- `PA-INV-003` conversión ml ↔ g por densidad — **necesaria**, las recetas de cocina la usan.
+- `PA-INV-005` lote y vencimiento — **necesaria**, la comida vence.
+- `PA-INV-006` producción interna (almíbares, salsas, despiece) — **necesaria**.
+- `PA-INV-010` botella abierta servida por trago — **necesaria**, es la mayor fuente de descuadre en barra.
+
+### Qué sigue
+
+Cerrar las 10 preguntas abiertas de [`inventario`](modulos/inventario.md) y aprobarlo.
+Nada más entra a definición hasta entonces (`RN-ARQ-006`).
+
+`PA-ALC-002` (¿operación sin conexión?) hay que resolverla en el camino: `PA-INV-004`
+depende de ella.

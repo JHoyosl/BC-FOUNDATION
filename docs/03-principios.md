@@ -167,7 +167,7 @@ que el artefacto de país implementa:
 ### Preguntas abiertas
 
 - `PA-ARQ-010` — ¿Barscode emite la factura electrónica directamente ante la DIAN o se integra con un proveedor tecnológico autorizado? Decisión de alto impacto en costo, riesgo y tiempos.
-- `PA-ARQ-011` — ¿El alcance Fase 1 incluye facturación electrónica o basta con comprobante de venta / tirilla? Muchos bares pequeños operan con documento equivalente.
+- `PA-ARQ-011` — ¿Se incluye facturación electrónica o basta con comprobante de venta / tirilla? Muchos bares pequeños operan con documento equivalente.
 - `PA-ARQ-012` — ¿Régimen tributario del tenant (común, simple, no responsable de IVA) es configuración de tenant o de sede?
 - `PA-ARQ-013` — ¿El artefacto de país incluye también las reglas laborales del módulo `schedule`, o eso se aísla aparte?
 
