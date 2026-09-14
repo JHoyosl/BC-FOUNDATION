@@ -135,7 +135,7 @@ está terminado cuando pasa su checklist de cierre, **con cero preguntas abierta
 El orden también importa por otra razón: definir un módulo aclara el vocabulario de los
 siguientes.
 
-1. **`inventario` — 🟡 EN CURSO.** Es el módulo con más reglas, el que mejor prueba el principio de autonomía y el que fija el vocabulario central. Faltan 10 preguntas abiertas por cerrar.
+1. **`inventario` — 🟡 EN CURSO.** Es el módulo con más reglas, el que mejor prueba el principio de autonomía y el que fija el vocabulario central. Faltan 5 preguntas abiertas por cerrar.
 2. `catalogo` — define producto, receta y precio; desbloquea POS y pedidos-qr.
 3. `salon-mesas` — define zona, mesa y QR; desbloquea pedidos-qr.
 4. `pos` — el corazón de la operación.

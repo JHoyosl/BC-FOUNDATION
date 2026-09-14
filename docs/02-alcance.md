@@ -49,7 +49,7 @@ abiertas** (`RN-ARQ-006`).
 
 | # | Módulo | Estado | Qué falta |
 |---|---|---|---|
-| 1 | [`inventario`](modulos/inventario.md) | 🟡 Borrador | Cerrar 10 preguntas abiertas y aprobar |
+| 1 | [`inventario`](modulos/inventario.md) | 🟡 Borrador | Cerrar 5 preguntas abiertas y aprobar |
 
 ### Cola
 
@@ -116,7 +116,7 @@ Cosas que Barscode **no** hace, escritas para que nadie las asuma:
 ## 7. Preguntas abiertas
 
 - ~~`PA-ALC-001`~~ — **Disuelta** (2026-09-14): no hay fases. Ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md).
-- `PA-ALC-002` — ¿Se exige operación sin conexión (offline)? Define buena parte de la complejidad de `pos`, `kds` e `inventario`. **Afecta a `inventario` vía `PA-INV-004`: hay que resolverla antes de cerrarlo.**
+- `PA-ALC-002` — ¿Se exige operación sin conexión (offline)? **Resuelta para `inventario`** (2026-09-14): no tiene modo sin conexión (`RN-INV-067`). **Sigue abierta para `pos` y `kds`**, y de ella depende `PA-INV-011`: si el POS vende sin red, hay que decidir qué pasa con esas ventas cuando vuelve la conexión.
 - `PA-ALC-003` — ¿Se incluye facturación electrónica DIAN o basta el comprobante de venta? Se resuelve al definir `localizacion-co`.
 - `PA-ALC-004` — ¿App móvil nativa o basta la web por QR? La web cubre el pedido; la app nativa es lo que habilita bien el Gamecenter. Se resuelve al definir `pedidos-qr`.
 - `PA-ALC-005` — ¿Hay una fecha objetivo o un compromiso externo que condicione el orden de la cola?

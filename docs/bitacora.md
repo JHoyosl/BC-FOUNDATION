@@ -138,3 +138,58 @@ Nada más entra a definición hasta entonces (`RN-ARQ-006`).
 
 `PA-ALC-002` (¿operación sin conexión?) hay que resolverla en el camino: `PA-INV-004`
 depende de ella.
+
+---
+
+## 2026-09-14 — Sesión 3: primera tanda de decisiones de `inventario`
+
+Siete preguntas cerradas, dos nuevas derivadas. El módulo pasa de 10 a 5 preguntas abiertas.
+
+### Decisiones
+
+| Id | Decisión | Reglas nuevas |
+|---|---|---|
+| `PA-INV-001` | **Maestro común + insumos locales.** Un insumo es `global` (tenant) o `local` (sede). Las existencias y los costos son **siempre** por sede y bodega: compartir la ficha no es compartir el stock. | `RN-INV-038`…`044` |
+| `PA-INV-002` | **Costo promedio ponderado**, confirmado. | — |
+| `PA-INV-003` | **Prohibida la conversión entre dimensiones.** Sin densidad, sin factor ml↔g. El caso real se resuelve con **empaques que declaran su contenido en la unidad base**. | `RN-INV-045`…`050` |
+| `PA-INV-004` | **Inventario no tiene modo sin conexión.** Sin red no registra, no encola y no muestra existencias. | `RN-INV-067`…`069` |
+| `PA-INV-005` | **Lote y vencimiento opcionales por insumo.** Cocina sí, licor no. | — |
+| `PA-INV-006` | **Producción interna con orden de producción.** Consume insumos, produce otro insumo con costo real derivado. Soporta subproductos (despiece). | `RN-INV-058`…`066` |
+| `PA-INV-010` | **Método de control de envase abierto configurable por insumo**: `unidad`, `nivel`, `peso`, `apertura`. La venta siempre descuenta por receta; el método define cómo se verifica el remanente. | `RN-INV-051`…`057` |
+
+### El hallazgo de la sesión: empaques en lugar de densidad
+
+Jorge decidió prohibir la conversión entre dimensiones. Eso dejaba sin resolver un caso
+real: *la crema se compra en tetrapak de 1 litro y se consume en gramos.*
+
+La salida no fue reabrir la decisión, sino cambiar dónde vive el dato. **Un empaque declara
+su contenido en la unidad base del insumo**: el tetrapak declara 1030 g. Nunca se convierte
+volumen a masa; se declara una vez cuánto pesa ese envase concreto.
+
+Resulta ser más exacto que una densidad genérica —dos cremas distintas pesan distinto— y no
+obliga a nadie a hacer cuentas. La restricción mejoró el diseño.
+
+### Preguntas nuevas, derivadas de las decisiones
+
+- `PA-INV-011` — Si el POS vende durante un corte de red, esas ventas llegan tarde.
+  ¿Se aplican al inventario al reconectar, o se descartan y la diferencia se corrige con un
+  conteo? `RN-INV-068` asume lo primero; falta confirmarlo.
+- `PA-INV-012` — ¿Qué diferencia se considera aceptable con método `nivel` antes de generar
+  alerta? Sin ese número, `RN-INV-055` no es verificable.
+
+### Estado de `inventario`
+
+| | Antes | Ahora |
+|---|---|---|
+| Reglas de negocio | 37 | **69** |
+| Historias de usuario | 8 | **11** |
+| Entidades | 9 | **12** |
+| Preguntas abiertas | 10 | **5** |
+
+También se cerró `PA-GLO-003` del glosario, que era la misma pregunta que `PA-INV-001`.
+
+### Qué sigue
+
+Las 5 preguntas restantes de `inventario`: `PA-INV-007` (envases retornables),
+`PA-INV-008` (quién aprueba recetas), `PA-INV-009` (conteo con móvil),
+`PA-INV-011` y `PA-INV-012`. Al cerrarlas, revisión y aprobación 🟢.

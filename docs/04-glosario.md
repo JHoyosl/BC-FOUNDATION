@@ -118,6 +118,29 @@ sistema dice que debería haber.
 **Bodega** — Lugar de almacenamiento dentro de una sede: bodega principal, barra, nevera.
 El stock siempre es *de un insumo en una bodega*.
 
+**Ámbito de un insumo** — `global` (definido en el tenant, disponible en todas las sedes) o
+`local` (propio de una sede). Compartir la ficha del insumo **no** significa compartir el
+stock: las existencias y los costos son siempre por sede y bodega.
+
+**Dimensión** — Volumen, masa o conteo. Cada insumo vive en una sola. **No existe conversión
+entre dimensiones**: no hay densidad ni factor ml↔g.
+
+**Empaque** — Forma concreta en que se compra o se maneja un insumo, que declara cuánto
+contiene *expresado en la unidad base del insumo*. Un tetrapak de crema declara 1030 g, no
+1 litro. Es lo que permite comprar en volumen y consumir en masa sin convertir nunca entre
+dimensiones.
+
+**Envase en servicio** — Envase ya abierto del que se está sirviendo. Solo existe para
+insumos cuyo método de control lo requiere.
+
+**Método de control de envase abierto** — Cómo se verifica lo que queda en un envase
+empezado: `unidad` (indivisible), `nivel` (estimación visual), `peso` (báscula, con tara) o
+`apertura` (se descuenta completo al abrir). Se configura por insumo.
+
+**Orden de producción** — Documento que transforma unos insumos en otro insumo distinto:
+almíbar, salsa madre, infusión, despiece. El insumo producido entra con costo real derivado,
+no estimado.
+
 **Existencia (stock)** — Cantidad de un insumo en una bodega en un momento dado.
 
 **Movimiento de inventario** — Todo hecho que cambia la existencia: entrada, salida, ajuste,
@@ -163,5 +186,5 @@ digital. Su catálogo lo define el artefacto de país.
 
 - `PA-GLO-001` — ¿La barra es una zona con mesas, una zona sin mesas, o un concepto aparte? Afecta `salon-mesas` y `pedidos-qr`.
 - `PA-GLO-002` — ¿Se usará "cuenta" también cuando un cliente pide para llevar sin mesa? ¿Existe ese caso?
-- `PA-GLO-003` — ¿Un tenant puede tener insumos compartidos entre sedes, o el catálogo de insumos es por sede?
+- ~~`PA-GLO-003`~~ — **Resuelta** (2026-09-14) junto con `PA-INV-001`: maestro común por tenant más insumos locales por sede. Ver *Ámbito de un insumo*.
 - `PA-GLO-004` — ¿"Producto" incluye cosas no consumibles que el bar venda (mercancía, cover, entrada)?
