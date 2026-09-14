@@ -1,0 +1,28 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*~
+
+# Temporales y borradores locales
+/tmp/
+/borradores/
+*.tmp
+*.bak
+
+# Exportaciones generadas (el KB fuente es Markdown)
+/export/
+*.pdf
+*.docx
+
+# Secretos: nunca deben entrar al KB
+.env
+.env.*
+*.pem
+*.key
+credenciales*
