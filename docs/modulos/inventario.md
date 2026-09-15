@@ -1,6 +1,6 @@
 # Módulo: `inventario` — Inventario
 
-> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Orden:** 1 (en curso) · **Actualizado:** 2026-09-14
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Orden:** 1 (en curso) · **Actualizado:** 2026-09-15
 
 Esta ficha es la **referencia** del KB: define la forma que deben tener todas las demás.
 
@@ -667,7 +667,6 @@ entera y no queda medio aplicada.
 | Precios de venta | `catalogo` |
 | Órdenes de compra y proveedores formales | `compras` |
 | Cuentas por pagar | Fuera del producto (software contable) |
-| Producción y transformación compleja (despiece, maduración) | Ver `PA-INV-006` |
 | Trazabilidad sanitaria / HACCP | Fuera del producto por ahora |
 | Inventario de activos fijos (mesas, equipos) | Fuera del producto |
 | Contabilización de los movimientos | Fuera del producto; se exporta |

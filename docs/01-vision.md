@@ -1,6 +1,6 @@
 # Visión de producto
 
-> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-09-14
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-09-15
 
 ## 1. Qué es Barscode
 
@@ -75,9 +75,9 @@ Es el segmento más exigente, y eso condiciona el diseño:
 | Se vende licor **y** comida | El catálogo maneja con igual solvencia botella, trago, coctel y plato con receta |
 | Dos naturalezas de inventario | Licor se mide en volumen y se sirve por trago desde botella abierta; comida se mide en masa y se porciona con merma |
 | Dos estaciones reales | Cocina y barra preparan en paralelo, con tiempos distintos. El KDS no es opcional |
-| Conversión entre dimensiones | Recetas de cocina mezclan ml y g. Hace falta densidad (`PA-INV-003`) |
-| Perecederos de verdad | La comida vence; el licor casi no. Lote y vencimiento dejan de ser opcionales (`PA-INV-005`) |
-| Producción interna | Almíbares, infusiones, salsas, despiece. Un insumo se transforma en otro (`PA-INV-006`) |
+| Volumen y masa conviven | Se compra en litros y se consume en gramos. Sin densidad: el empaque declara su contenido en la unidad base del insumo (`PA-INV-003`) |
+| Perecederos de verdad | La comida vence; el licor casi no. Lote y vencimiento se activan por insumo: cocina sí, licor no (`PA-INV-005`) |
+| Producción interna | Almíbares, infusiones, salsas, despiece. Un insumo se transforma en otro con una orden de producción (`PA-INV-006`) |
 | Franja horaria amplia | Almuerzo y noche son operaciones distintas: carta, personal y ritmo cambian |
 | Gamecenter con sentido | Funciona de noche, en la franja bar. Debe poder apagarse en la franja restaurante |
 

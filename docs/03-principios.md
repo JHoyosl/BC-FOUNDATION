@@ -1,6 +1,6 @@
 # Principios de arquitectura funcional
 
-> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-09-14
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-09-15
 
 Tres reglas gobiernan todo el diseño de Barscode. Cualquier definición de módulo que las
 contradiga está mal y se corrige. Cada una tiene su ADR:
@@ -56,6 +56,7 @@ Ejemplo, para Inventario:
 - `RN-ARQ-003` — La comunicación entre módulos ocurre siempre a través del contrato declarado en la ficha, nunca por conocimiento implícito de los datos del otro.
 - `RN-ARQ-004` — Un módulo no impone su vocabulario a otro. Si dos módulos nombran distinto la misma cosa, el [glosario](04-glosario.md) decide.
 - `RN-ARQ-005` — Los módulos de la capa **Plataforma** (tenancy, IAM, configuración) son la única excepción: son transversales y obligatorios para cualquier instalación.
+- `RN-ARQ-006` — Ningún módulo entra a definición mientras el anterior de la cola tenga preguntas abiertas sin resolver o escalar a ADR. Ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md).
 
 ### Lo que este principio **no** significa
 
