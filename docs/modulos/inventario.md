@@ -18,9 +18,9 @@ tiempo.
 
 | | |
 |---|---|
-| **Funciona solo** | Catálogo de insumos (global por tenant o local por sede) con unidades, dimensiones y empaques · bodegas · existencias · entradas, salidas, traslados, ajustes y mermas manuales · control de envases abiertos · fichas técnicas (recetas) y costeo · órdenes de producción interna · costo promedio ponderado · lotes y vencimientos · conteos físicos · alertas de mínimo · valorización del inventario · trazabilidad completa de movimientos. Un negocio que ya tiene POS de otro proveedor puede contratar solo Inventario y usarlo entero. |
-| **Degradación** | **Sin `pos`:** las salidas por venta se registran manualmente o por importación de un archivo de ventas. **Sin `compras`:** las entradas se registran como entrada manual con costo digitado, sin orden de compra ni proveedor formal (queda un campo libre de proveedor). **Sin `catalogo`:** las recetas se definen contra un "producto vendible" declarado localmente por Inventario, no contra el catálogo comercial. **Sin `reportes`:** Inventario entrega sus propios informes básicos. |
-| **Consume** | De `pos`: ventas confirmadas (producto, cantidad, modificadores, sede, fecha) → para descontar insumos vía receta. De `compras`: recepciones de mercancía (insumo, cantidad, costo, proveedor) → para ingresar stock. De `catalogo`: identidad de los productos vendibles → para asociar recetas. De `tenancy`: sedes activas. De `iam`: usuarios y permisos. **Todos con alternativa manual.** |
+| **Funciona solo** | Catálogo de insumos (global por tenant o local por sede) con unidades, dimensiones y empaques · bodegas · existencias · entradas, salidas, traslados, ajustes y mermas manuales · envases abiertos por estación con cierre y apertura de turno · fichas técnicas (recetas) y costeo · órdenes de producción interna · costo promedio ponderado · lotes y vencimientos · conteos físicos · alertas de mínimo · valorización del inventario · trazabilidad completa de movimientos. Un negocio que ya tiene POS de otro proveedor puede contratar solo Inventario y usarlo entero. |
+| **Degradación** | **Sin `pos`:** las salidas por venta se registran manualmente o por importación de un archivo de ventas; la estación se declara *por archivo* y sus diferencias esperan a que llegue el archivo que cubre el turno. **Sin `compras`:** las entradas se registran como entrada manual con costo digitado, sin orden de compra ni proveedor formal (queda un campo libre de proveedor). **Sin `catalogo`:** las recetas se definen contra un "producto vendible" declarado localmente por Inventario, no contra el catálogo comercial, y no se muestra la venta perdida. **Sin `kds` ni `pos`:** cada bodega de venta opera con su estación por defecto. **Sin `reportes`:** Inventario entrega sus propios informes básicos. |
+| **Consume** | De `pos`: ventas confirmadas (producto, cantidad, modificadores, sede, estación, fecha y hora) → para descontar insumos vía receta. De `compras`: recepciones de mercancía (insumo, cantidad, costo, proveedor) → para ingresar stock. De `catalogo`: identidad de los productos vendibles y su precio de carta → para asociar recetas y calcular la venta perdida. De `kds` o `pos`: estaciones → para atribuir envases abiertos. De `tenancy`: sedes activas. De `iam`: usuarios y permisos. **Todos con alternativa manual.** |
 | **Expone** | Existencia actual de un insumo en una bodega · costo unitario vigente de un insumo · costo calculado de una receta · disponibilidad para preparar un producto (cuántas unidades alcanzan los insumos) · operación de descontar/ingresar cantidad con referencia de origen · alertas de stock bajo o agotado · valorización del inventario a una fecha. |
 
 ---
@@ -37,6 +37,7 @@ tiempo.
 | **Sistema (`pos`)** | Genera salidas automáticas por venta. |
 | **Sistema (`compras`)** | Genera entradas automáticas por recepción. |
 | **Cocinero / bartender de producción** | Ejecuta órdenes de producción: almíbares, salsas, infusiones, despiece. |
+| **Bartender / cocinero de turno** | Abre, finaliza y presta los envases de su estación. Hace el cierre y la apertura de su turno. |
 
 ---
 
@@ -51,9 +52,24 @@ tiempo.
 - **Dimensión** — Volumen, masa o conteo. **No existe conversión entre dimensiones.**
 - **Empaque** — Forma concreta en que se compra o maneja un insumo, que declara cuánto
   contiene *en la unidad base del insumo*: un tetrapak de crema = 1030 g.
-- **Envase en servicio** — Envase ya abierto del que se está sirviendo.
-- **Método de control de envase abierto** — Cómo se verifica lo que queda en un envase
-  empezado: `unidad`, `nivel`, `peso` o `apertura`. Se configura por insumo.
+- **Tipo de control** — Cómo se lleva la existencia de un insumo: `unidad` (indivisible),
+  `granel` (sin envase) o `envase abierto` (se abre y se sirve de él durante un tiempo). Se configura
+  por insumo.
+- **Verificación** — Para `envase abierto`, cómo se mide lo que queda: `al finalizar`, `nivel` o
+  `peso`.
+- **Estación** — Punto de preparación que consume de una bodega: cocina, barra, pastelería. Toda
+  bodega de venta tiene una estación por defecto. Ver [glosario](../04-glosario.md).
+- **Envase en servicio** — Envase abierto de un insumo, a cargo de la **estación** que lo abrió.
+  Tiene historia propia: quién lo abrió, cuándo, qué se le vendió y cada medición.
+- **Turno de estación** — Periodo entre la apertura y el cierre de una estación, en el que esa
+  estación responde por sus envases en servicio.
+- **Diferencia de envase** — Lo medido menos lo que las ventas dicen que debería quedar. Faltante
+  si es negativa, sobrante si es positiva.
+- **Diferencia entre turnos** — Lo que cambió entre el cierre de un turno y la apertura del
+  siguiente, cuando la estación no estaba operando. No se atribuye a ninguno de los dos turnos.
+- **Nota de venta tardía** — Registro de que unas ventas llegaron después de una medición y
+  explican parte de su diferencia.
+- **Porción de referencia** — Cantidad que representa una porción de un insumo (un trago de 50 ml).
 - **Movimiento** — Único mecanismo por el que cambia una existencia.
 - **Receta (ficha técnica)** — Insumos y cantidades que consume un producto vendible **o un
   insumo producido internamente**.
@@ -78,7 +94,11 @@ Qué se compra y se consume.
 - **Unidad base** de medida, y con ella su **dimensión** (volumen, masa o conteo)
 - **Empaques** con los que se compra o se maneja (ver 5.2)
 - ¿Exige control de lote y vencimiento? (opcional, por insumo)
-- **Método de control de envase abierto** (ver 5.3)
+- **Tipo de control** (ver 5.3): `unidad` · `granel` · `envase abierto`
+- Solo para `envase abierto`:
+  - **Verificación**: `al finalizar` · `nivel` · `peso`
+  - **Porción de referencia** (ej. 50 ml), opcionalmente asociada a un producto vendible
+  - **Tolerancia de diferencia**, en % del consumo
 - Activo / inactivo
 - Cuenta contable de referencia (opcional, para exportación)
 
@@ -116,43 +136,77 @@ partir de ahí todo es masa.
 cremas distintas pesan distinto. Declarar el contenido del empaque real es más exacto que
 aplicar una densidad teórica, y no obliga a nadie a hacer cuentas.
 
-### 5.3 Método de control de envase abierto
+Un empaque de un insumo que se verifica por `peso` declara además su **peso vacío** y su **peso
+lleno**:
 
-> Resuelve `PA-INV-010` (2026-09-14).
+```
+Insumo: Whisky 12 años
+  Unidad base: ml  (dimensión: volumen)
+  Empaques:
+    · Botella 750 = 750 ml · peso vacío 500 g · peso lleno 1.250 g
+```
 
-Cada insumo declara **cómo se controla lo que queda en un envase empezado**. Es
-configurable por insumo porque no compensa el mismo rigor para un whisky de 300.000 COP que
-para una caja de cerveza.
+Con un peso bruto de 875 g, el contenido es (875 − 500) ÷ (1.250 − 500) × 750 = **375 ml**.
 
-| Método | Cómo funciona | Para qué sirve |
+**Por qué así:** la báscula no convierte gramos en mililitros; solo dice **qué fracción del
+envase queda**. No hay densidad (`RN-INV-046`), y el peso vacío vive en el empaque y no en el
+insumo: dos botellas del mismo licor pueden pesar distinto vacías.
+
+### 5.3 Tipo de control y verificación
+
+> Resuelve `PA-INV-010` (2026-09-14) · **revisada 2026-09-15**.
+
+Cada insumo declara **cómo se lleva su existencia**. Es configurable por insumo porque no
+compensa el mismo rigor para un whisky de 300.000 COP que para una caja de cerveza.
+
+| Tipo | Cómo funciona | Ejemplos |
 |---|---|---|
-| `unidad` | El envase es indivisible. Se descuenta entero al venderse. | Cerveza en botella, gaseosa en lata, producto empacado |
-| `nivel` | El stock se lleva en la unidad base y el conteo estima el nivel a ojo (⅓, ½, ¾ de envase). | El caso general de barra. Sin equipo extra |
-| `peso` | El stock se lleva en la unidad base y el conteo **pesa** el envase abierto; se descuenta la tara. | Licor premium, insumos caros de cocina |
-| `apertura` | Al abrirse, el envase se descuenta completo y pasa a estado *en servicio*. | Cuando el descuadre interno no importa o no se puede medir |
+| `unidad` | El empaque es indivisible. La venta descuenta unidades enteras. | Cerveza en botella, gaseosa en lata |
+| `granel` | No viene en un envase que se abra. La venta descuenta por receta de la bodega y se verifica en el conteo físico. | Limón, carne, hielo |
+| `envase abierto` | Se abre un envase y se sirve de él durante un tiempo. La venta descuenta del **envase en servicio** de la estación que prepara. | Ron, whisky, aceite, crema en tetrapak |
 
-**En todos los métodos, la venta descuenta según la receta.** Lo que cambia es **cómo se
-verifica** en el conteo físico, y por tanto qué tan fina es la diferencia que el sistema
-puede detectar.
+Un insumo `envase abierto` declara además **cómo se verifica** lo que queda:
 
-Un insumo con método `peso` declara además la **tara** de su envase (cuánto pesa vacío).
+| Verificación | Cómo se mide | Para qué sirve |
+|---|---|---|
+| `al finalizar` | No se mide mientras está abierto. Al acabarse se marca finalizado y la medición es 0. | El caso general. Nadie estima a ojo |
+| `nivel` | Se estima una fracción del envase (¼, ⅓, ½, ¾). | Control diario sin equipo |
+| `peso` | Se pesa el envase; el contenido sale del peso vacío y lleno del empaque (5.2). | Licor premium, insumos caros |
+
+**En todos los tipos, la venta descuenta según la receta.** La verificación solo define **cuándo y
+con qué precisión** se compara lo vendido contra lo que queda.
 
 ### 5.4 Envase en servicio
-Solo para insumos con método `nivel`, `peso` o `apertura`. Representa un envase concreto
-que ya se abrió.
+Solo para insumos `envase abierto`. Es un envase concreto que ya se abrió.
 
-- Insumo, bodega, empaque de origen
-- Fecha y responsable de apertura
-- Contenido teórico restante (calculado por las ventas)
-- Contenido verificado en el último conteo, y cuándo
+- Insumo, **estación** a cargo y bodega de la que salió
+- Empaque de origen y contenido inicial
+- Apertura: responsable, hora de registro y **hora declarada** (si se registró tarde)
+- Ventas cargadas y **contenido teórico restante**
+- **Porciones teóricas restantes** (contenido ÷ porción de referencia)
+- Mediciones: valor, cuándo y en qué (cierre, apertura, conteo, finalización)
+- ml pendientes recibidos de ventas sin envase en servicio, con su aviso
+- Préstamos a otras estaciones, con o sin medición
 - Lote y vencimiento, si el insumo los controla
-- Estado: `en servicio` · `agotado` · `descartado`
+- Estado: `en servicio` · `finalizado` · `descartado`
+- Diferencia al finalizar, y versiones si se reabrió
+
+**Así se ve la existencia** de un insumo `envase abierto` en una bodega:
+
+```
+Ron añejo · Bodega Barra
+  Cerradas      10 botellas                                          7.500 ml
+  En servicio   Barra terraza · abierta 21:10 · quedan 6 porciones     300 ml
+                                                              Total   7.800 ml
+```
 
 ### 5.5 Bodega
 Lugar de almacenamiento. Pertenece a una **sede**.
 
 - Nombre, tipo (bodega principal, barra, cocina, nevera)
 - ¿Permite venta directa desde ella? (define de dónde descuenta el POS)
+- **Estación por defecto** (solo bodegas de venta): la que consume de esta bodega cuando no se indica
+  otra. Se crea con la bodega y se puede cambiar (`RN-INV-112`)
 - Responsable
 - Activa / inactiva
 
@@ -165,6 +219,8 @@ acumulado de los movimientos.
 - Costo unitario promedio vigente (importe con moneda)
 - Stock mínimo y máximo configurados
 - Fecha del último movimiento
+- Para insumos `envase abierto`: envases **cerrados** + contenido de los **envases en servicio** de
+  las estaciones que sacan de esa bodega (`RN-INV-077`)
 
 ### 5.7 Movimiento de inventario
 El hecho que cambia la existencia. **Es el corazón del módulo.**
@@ -174,9 +230,9 @@ El hecho que cambia la existencia. **Es el corazón del módulo.**
 - Insumo, bodega origen y/o destino
 - Cantidad y unidad en que se registró + cantidad convertida a unidad base
 - Costo unitario y costo total (importe con moneda)
-- Origen: `manual` · `pos` · `compras` · `conteo` · `importacion`
-- Referencia de origen (id de venta, de recepción, de conteo)
-- Responsable, fecha y hora, nota
+- Origen: `manual` · `pos` · `compras` · `conteo` · `importacion` · `estación`
+- Referencia de origen (id de venta, de recepción, de conteo, de turno de estación)
+- Responsable, **fecha del hecho y fecha de recepción** (iguales salvo llegada tardía), nota
 - Estado: `borrador` · `confirmado` · `anulado`
 - Lote y vencimiento (si el insumo los controla)
 
@@ -188,7 +244,7 @@ Catálogo configurable por tenant. Por defecto:
 | Entrada | Compra · Devolución de cliente · Producción interna · Traslado entrante · Saldo inicial |
 | Salida | Venta · Consumo interno · Cortesía · Traslado saliente · Devolución a proveedor |
 | Merma | Rotura · Vencimiento · Derrame · Deterioro · Robo · Error de preparación |
-| Ajuste | Diferencia de conteo · Corrección de registro |
+| Ajuste | Diferencia de conteo · Diferencia de envase · Corrección de registro |
 
 ### 5.9 Receta (ficha técnica)
 Relación de un producto vendible con los insumos que consume.
@@ -205,8 +261,11 @@ Relación de un producto vendible con los insumos que consume.
 - Sede, bodega, fecha, responsable
 - Alcance: total · por categoría · selectivo
 - Líneas: insumo, cantidad teórica (congelada al iniciar), cantidad contada, diferencia
-- Estado: `abierto` · `en conteo` · `cerrado` · `anulado`
+- **Incluir abiertas** (sí/no): mide también los envases en servicio (auditoría)
+- Líneas marcadas **por recontar** (se abrió un envase durante el conteo)
+- Estado: `abierto` · `en conteo` · `cerrado` · `anulado` · `reabierto`
 - Ajustes generados al cerrar
+- Versión anterior, si fue reabierto
 
 ### 5.11 Alerta de stock
 - Insumo, bodega, tipo (`bajo mínimo` · `agotado` · `sobre máximo` · `por vencer`)
@@ -235,6 +294,29 @@ salsa madre, infusión, despiece de una pieza de carne.
 **Qué hace al confirmarse:** genera en un solo acto las salidas de los insumos consumidos y
 la entrada del insumo producido, todas referenciando la orden. El insumo producido entra
 con su **costo real**, no estimado.
+
+### 5.13 Estación (configuración en inventario)
+
+> Resuelve la titularidad de la estación (2026-09-15): inventario la reconoce por su
+> identificador, venga del módulo que venga.
+
+- Estación, reconocida por su **identificador** (`RN-INV-113`)
+- Bodega de la que saca (la bodega de venta de `RN-INV-022`)
+- ¿Es la estación por defecto de esa bodega?
+- **Origen de ventas**: `en línea` · `por archivo`
+- Plazo para alertar si no llegan las ventas de un turno (solo `por archivo`)
+
+### 5.14 Turno de estación
+
+- Sede, estación
+- **Apertura**: responsable, hora, modo (`recibido conforme` · `medida`) y mediciones
+- **Cierre**: responsable, hora y una línea por envase en servicio con su medición según la
+  verificación (peso, nivel o "sigue ahí")
+- Diferencia del turno, por envase y total
+- Diferencia entre turnos (contra el cierre anterior)
+- Estado: `abierto` · `pendiente de ventas` · `cerrado`
+- Notas: de venta tardía, de corrección, "recalculado por reapertura"
+- Versiones, si el cierre o la apertura se reabrieron
 
 ---
 
@@ -265,18 +347,20 @@ con su **costo real**, no estimado.
 
 ```
 ┌─────────┐  iniciar  ┌────────────┐  cerrar   ┌─────────┐
-│ abierto │──────────►│ en conteo  │──────────►│ cerrado │
-└────┬────┘           └─────┬──────┘           └─────────┘
-     │                      │                        │
-     │ anular               │ anular                 └─► genera ajustes
-     ▼                      ▼                            (inmutable)
- ┌─────────┐          ┌─────────┐
- │ anulado │◄─────────│ anulado │
+│ abierto │──────────►│ en conteo  │──────────►│ cerrado │──► genera ajustes
+└────┬────┘           └─────┬──────┘           └────┬────┘
+     │                      │                       │ reabrir (motivo + autorización)
+     │ anular               │ anular                ▼
+     ▼                      ▼                 ┌───────────┐
+ ┌─────────┐          ┌─────────┐             │ reabierto │──► versión nueva
+ │ anulado │◄─────────│ anulado │             └───────────┘
  └─────────┘          └─────────┘
 ```
 
 Al pasar a **en conteo** se congela la cantidad teórica de cada línea. Al **cerrar**, cada
-diferencia genera un movimiento de ajuste confirmado. Un conteo cerrado no se reabre.
+diferencia genera un movimiento de ajuste confirmado. Un conteo cerrado **puede reabrirse** con
+motivo y autorización (`RN-INV-103`…`107`): sus ajustes se anulan con movimientos inversos y se
+crea una versión nueva. Nunca se edita.
 
 ### 6.3 Orden de producción
 
@@ -299,18 +383,52 @@ entera y no queda medio aplicada.
 ### 6.4 Envase en servicio
 
 ```
-   abrir envase
+   abrir (estación · hora real opcional)
         │
         ▼
-┌──────────────┐  contenido llega a 0   ┌──────────┐
-│ en servicio  │───────────────────────►│ agotado  │
-└──────┬───────┘                        └──────────┘
-       │ merma (rotura, vencimiento)
-       ▼
-┌──────────────┐
-│ descartado   │  ← genera merma por el contenido restante
-└──────────────┘
+┌──────────────┐   finalizar (mide 0)   ┌────────────┐
+│ en servicio  │───────────────────────►│ finalizado │
+└──────┬───────┘                        └─────┬──────┘
+       │ merma (rotura, vencimiento)          │ reabrir (motivo + autorización)
+       ▼                                      ▼
+┌──────────────┐                   vuelve a en servicio; si la estación ya
+│ descartado   │                   tiene otro, el contenido corregido se
+└──────────────┘                   suma a ese (RN-INV-108)
+  genera merma por el
+  contenido restante
 ```
+
+**Prestar** a otra estación (medición opcional, `RN-INV-114`): el envase sigue `en servicio`, a
+cargo de la estación de destino.
+
+### 6.5 Turno de estación
+
+```
+      apertura (recibido conforme · medida)
+             │
+             ▼
+      ┌────────────┐
+      │  abierto   │
+      └─────┬──────┘
+            │ cierre (mide según verificación)
+     ┌──────┴────────────┐
+ en línea           por archivo
+     │                   ▼
+     │       ┌─────────────────────┐   llega el archivo que
+     │       │ pendiente de ventas │   cubre el turno
+     │       └──────────┬──────────┘
+     ▼                  ▼
+┌────────────────────────────┐
+│          cerrado           │
+└─────────────┬──────────────┘
+              │ reabrir (hasta que cierre el turno siguiente)
+              ▼
+   versión nueva · la anterior queda como reabierta
+```
+
+- **abierto** → la estación opera; las ventas descuentan de sus envases en servicio.
+- **pendiente de ventas** → ya se midió, pero la diferencia espera el archivo. Sin alertas.
+- **cerrado** → la diferencia está calculada. Lo medido es el punto de partida del turno siguiente.
 
 ---
 
@@ -363,7 +481,7 @@ entera y no queda medio aplicada.
 
 - `RN-INV-029` — Al iniciar un conteo se congela la cantidad teórica de cada línea. Los movimientos que ocurran durante el conteo no alteran esa cifra congelada, pero sí el stock; la diferencia se calcula contra la cifra congelada.
 - `RN-INV-030` — Al cerrar un conteo, cada diferencia genera un movimiento de ajuste confirmado con motivo *diferencia de conteo*.
-- `RN-INV-031` — Un conteo cerrado no se reabre ni se modifica. Un error se corrige con un nuevo conteo.
+- `RN-INV-031` — *(derogada por `RN-INV-103`)* ~~Un conteo cerrado no se reabre ni se modifica. Un error se corrige con un nuevo conteo.~~
 - `RN-INV-032` — El tenant puede exigir autorización para cerrar un conteo cuya diferencia total supere un umbral configurable.
 
 ### Lotes y vencimientos
@@ -396,15 +514,15 @@ entera y no queda medio aplicada.
 - `RN-INV-049` — Toda cantidad registrada en un empaque se convierte a la unidad base al confirmarse, conservando el empaque en que se registró.
 - `RN-INV-050` — El contenido declarado de un empaque puede corregirse, pero el cambio **no reescribe movimientos pasados**: los ya confirmados conservan la cantidad con que se registraron.
 
-### Envases abiertos
+### Envases abiertos *(grupo derogado el 2026-09-15; ver los grupos desde "Tipo de control y verificación")*
 
-- `RN-INV-051` — Cada insumo declara su método de control de envase abierto: `unidad`, `nivel`, `peso` o `apertura`. Por defecto, `unidad`.
-- `RN-INV-052` — En todos los métodos, **la venta descuenta según la receta**. El método solo determina cómo se verifica el remanente en el conteo físico.
-- `RN-INV-053` — Con método `apertura`, abrir un envase genera una salida por su contenido completo y crea un envase en servicio. Las ventas posteriores de ese insumo no vuelven a descontar stock hasta que se abra el siguiente.
-- `RN-INV-054` — Con método `peso`, el insumo declara la tara de su envase. El conteo registra el peso bruto y el sistema deriva el contenido restando la tara.
-- `RN-INV-055` — Con método `nivel`, el conteo registra una fracción del envase (⅓, ½, ¾) y el sistema la convierte a la unidad base. Se asume imprecisión: la diferencia resultante no dispara alerta salvo que supere el umbral configurado.
-- `RN-INV-056` — Un envase en servicio pertenece a una bodega concreta. Trasladarlo entre bodegas es un movimiento de traslado por su contenido restante.
-- `RN-INV-057` — Puede haber varios envases en servicio del mismo insumo en la misma bodega. El conteo los verifica uno por uno.
+- `RN-INV-051` — *(derogada por `RN-INV-070`)* ~~Cada insumo declara su método de control de envase abierto: `unidad`, `nivel`, `peso` o `apertura`. Por defecto, `unidad`.~~
+- `RN-INV-052` — *(derogada por `RN-INV-074`)* ~~En todos los métodos, la venta descuenta según la receta. El método solo determina cómo se verifica el remanente en el conteo físico.~~
+- `RN-INV-053` — *(derogada por `RN-INV-078`)* ~~Con método `apertura`, abrir un envase genera una salida por su contenido completo y crea un envase en servicio. Las ventas posteriores de ese insumo no vuelven a descontar stock hasta que se abra el siguiente.~~
+- `RN-INV-054` — *(derogada por `RN-INV-075`)* ~~Con método `peso`, el insumo declara la tara de su envase. El conteo registra el peso bruto y el sistema deriva el contenido restando la tara.~~
+- `RN-INV-055` — *(derogada por `RN-INV-076` y `RN-INV-086`)* ~~Con método `nivel`, el conteo registra una fracción del envase (⅓, ½, ¾) y el sistema la convierte a la unidad base. Se asume imprecisión: la diferencia resultante no dispara alerta salvo que supere el umbral configurado.~~
+- `RN-INV-056` — *(derogada por `RN-INV-079`)* ~~Un envase en servicio pertenece a una bodega concreta. Trasladarlo entre bodegas es un movimiento de traslado por su contenido restante.~~
+- `RN-INV-057` — *(derogada por `RN-INV-080`)* ~~Puede haber varios envases en servicio del mismo insumo en la misma bodega. El conteo los verifica uno por uno.~~
 
 ### Producción interna
 
@@ -421,8 +539,74 @@ entera y no queda medio aplicada.
 ### Disponibilidad y conexión
 
 - `RN-INV-067` — Inventario **no tiene modo sin conexión**. Sin conexión no registra movimientos, no los encola localmente y no muestra existencias.
-- `RN-INV-068` — Un movimiento que llega tarde porque su módulo de origen estuvo sin conexión se registra con **dos fechas**: la del hecho original y la de su recepción. El descuento se aplica al recibirse.
-- `RN-INV-069` — Un movimiento con fecha de hecho anterior al cierre de un conteo físico ya cerrado **no altera ese conteo**. Se registra, afecta el stock actual y genera una alerta de llegada tardía para que alguien lo revise.
+- `RN-INV-068` — *(derogada por `RN-INV-100` y `RN-INV-101`)* ~~Un movimiento que llega tarde porque su módulo de origen estuvo sin conexión se registra con dos fechas: la del hecho original y la de su recepción. El descuento se aplica al recibirse.~~
+- `RN-INV-069` — *(derogada por `RN-INV-102`)* ~~Un movimiento con fecha de hecho anterior al cierre de un conteo físico ya cerrado no altera ese conteo. Se registra, afecta el stock actual y genera una alerta de llegada tardía para que alguien lo revise.~~
+
+### Tipo de control y verificación
+
+- `RN-INV-070` — Cada insumo declara su tipo de control: `unidad`, `granel` o `envase abierto`. Por defecto, `unidad`.
+- `RN-INV-071` — Con tipo `unidad`, el empaque es indivisible: la venta descuenta unidades enteras y no existe envase en servicio.
+- `RN-INV-072` — Con tipo `granel`, la venta descuenta por receta de la existencia de la bodega y el remanente se verifica solo en el conteo físico.
+- `RN-INV-073` — Un insumo `envase abierto` declara su verificación (`al finalizar`, `nivel` o `peso`), su porción de referencia y su tolerancia de diferencia.
+- `RN-INV-074` — En todos los tipos, la venta descuenta según la receta (`RN-INV-020`). Con tipo `envase abierto`, descuenta del envase en servicio de la estación que prepara el producto.
+- `RN-INV-075` — Con verificación `peso`, el empaque declara peso vacío y peso lleno, y el contenido se deriva por proporción lineal entre ambos, en la unidad base. Un peso bruto menor que el vacío o mayor que el lleno se rechaza.
+- `RN-INV-076` — Con verificación `nivel`, la medición registra una fracción del envase (¼, ⅓, ½, ¾) y el sistema la convierte a la unidad base con el contenido del empaque.
+
+### Envase en servicio
+
+- `RN-INV-077` — La existencia de un insumo `envase abierto` en una bodega es la suma de sus envases cerrados y del contenido de los envases en servicio de las estaciones que sacan de esa bodega. Ambos cuentan en la valorización.
+- `RN-INV-078` — Abrir un envase no cambia la existencia ni el costo: pasa un envase cerrado a envase en servicio de la estación y registra estación, responsable y hora. Queda visible en el kardex.
+- `RN-INV-079` — Un envase en servicio pertenece a la estación que lo abrió y sale de la bodega de esa estación (`RN-INV-022`). Varias estaciones pueden sacar de la misma bodega.
+- `RN-INV-080` — Una estación tiene como máximo un envase en servicio por insumo. Para abrir otro, debe finalizar el anterior.
+- `RN-INV-081` — Un envase en servicio muestra su contenido teórico restante y las porciones que le quedan según la porción de referencia del insumo.
+- `RN-INV-082` — Descartar un envase en servicio (rotura, vencimiento) genera una merma por su contenido teórico restante.
+- `RN-INV-083` — Una venta de un insumo `envase abierto` sin envase en servicio en su estación descuenta la existencia igual y genera una alerta de trazabilidad. El sistema no abre envases por su cuenta. Los ml quedan pendientes y se cargan al próximo envase que se abra en esa estación, con un aviso de lo realizado.
+- `RN-INV-114` — Un envase en servicio puede prestarse a otra estación que saque de la misma bodega; medirlo al prestarlo es opcional. Con medición, se calcula la diferencia en la estación de origen y el envase arranca en la de destino con lo medido. Sin medición, pasa con su contenido teórico y la siguiente medición calcula una diferencia marcada *compartida entre estaciones*. Si la estación de destino ya tiene un envase en servicio de ese insumo, el contenido se suma a ese.
+
+### Diferencia de envase
+
+- `RN-INV-084` — Toda medición de un envase en servicio (cierre, apertura, conteo o finalización) calcula su diferencia: contenido medido menos contenido teórico. Finalizar es una medición de 0.
+- `RN-INV-085` — La diferencia se registra como ajuste con motivo *diferencia de envase*, valorizado al CPP vigente en el momento de la medición (`RN-INV-015`). No es merma: su causa es desconocida.
+- `RN-INV-086` — Una diferencia cuyo valor absoluto no supera la tolerancia del insumo, calculada sobre el consumo por ventas del periodo medido, se registra sin generar alerta.
+- `RN-INV-087` — En una estación `en línea`, cuando lo vendido de un envase en servicio supera su contenido, se genera en ese momento una alerta de *envase excedido*.
+- `RN-INV-088` — Si `catalogo` está instalado y la porción de referencia está asociada a un producto vendible, la diferencia se muestra además como venta perdida: diferencia ÷ porción × precio de carta de ese producto.
+
+### Estaciones y turno de estación
+
+- `RN-INV-112` — Toda bodega de venta tiene una estación por defecto que consume de ella. Se crea con la bodega y se puede cambiar por otra estación.
+- `RN-INV-113` — Inventario relaciona bodegas y estaciones por el identificador de la estación y no depende del módulo que la haya creado. Sin ningún módulo que provea estaciones, cada bodega de venta opera con su estación por defecto.
+- `RN-INV-089` — Un turno de estación va de una apertura a su cierre. Puede haber varios por día. Es un registro propio de inventario: no depende de `caja` ni de `schedule`.
+- `RN-INV-090` — En el cierre se registra cada envase en servicio de la estación según su verificación: con `peso` se pesa, con `nivel` se estima y con `al finalizar` solo se confirma que el envase sigue ahí.
+- `RN-INV-091` — El contenido medido en un cierre pasa a ser el contenido de partida del turno siguiente.
+- `RN-INV-092` — El cierre de estación no cuenta envases cerrados, salvo que la bodega la use una sola estación; en ese caso puede incluirlos.
+- `RN-INV-093` — En la apertura, quien recibe marca *recibido conforme* o mide. La diferencia entre lo medido en la apertura y lo registrado en el cierre anterior es *diferencia entre turnos* y no se atribuye a ninguno de los dos.
+- `RN-INV-094` — Si una estación no hizo cierre, no se bloquea ninguna operación: se genera la alerta *estación sin cierre*, la apertura siguiente no admite *recibido conforme* y la diferencia de los dos turnos queda como una sola, marcada así.
+- `RN-INV-095` — Cada estación declara su origen de ventas: `en línea` o `por archivo`.
+- `RN-INV-096` — En una estación `por archivo`, las mediciones ajustan la existencia igual, pero la diferencia queda *pendiente de ventas*: no genera alertas ni entra en reportes hasta importar un archivo cuyo periodo cubra el turno completo. Esas ventas no generan nota de venta tardía.
+- `RN-INV-097` — Si el archivo que cubre un turno pendiente no llega en el plazo configurado, se genera la alerta *turno sin ventas cargadas*.
+- `RN-INV-098` — Un archivo de ventas sin hora por venta se concilia por día de operación y estación; la diferencia por envase y por turno queda marcada *sin detalle*. Si el archivo no trae estación, las ventas van a la estación por defecto de la bodega.
+- `RN-INV-099` — Al registrar la apertura o la finalización de un envase se puede declarar la hora real. Se guardan la hora declarada y la de registro. La hora declarada debe estar dentro del turno abierto de la estación y no puede ser anterior al evento previo de ese insumo en la estación.
+
+### Llegadas tardías
+
+- `RN-INV-100` — Un movimiento que llega tarde se registra con dos fechas: la del hecho y la de recepción.
+- `RN-INV-101` — Si después de la fecha del hecho no hubo ninguna medición del insumo en esa bodega o estación, el movimiento afecta la existencia al recibirse.
+- `RN-INV-102` — Si después de la fecha del hecho hubo una medición (conteo, cierre, apertura o finalización), el movimiento **no cambia la existencia**: se registra con su fecha del hecho junto con un ajuste inverso que referencia el ajuste de esa medición, se recalcula la diferencia del periodo medido y queda una *nota de venta tardía* (*nota de movimiento tardío* si no es una venta). El documento de la medición no se modifica.
+
+### Reapertura de mediciones
+
+- `RN-INV-103` — Un cierre, una apertura, una finalización o un conteo físico pueden reabrirse. Reabrir no edita: anula con movimientos inversos los ajustes que generó (`RN-INV-006`), deja la versión original visible como *reabierta* y crea una versión nueva que la referencia.
+- `RN-INV-104` — Mientras no haya habido operación sobre esos envases o esa bodega después de la medición, la versión nueva puede volver a medir. Después, solo corrige el valor registrado.
+- `RN-INV-105` — Una medición puede reabrirse hasta que se cierre la siguiente medición del mismo alcance: el turno siguiente de la estación o, para un conteo, el siguiente conteo o cierre que mida esos insumos. Las diferencias que cambian quedan marcadas *recalculado por reapertura*.
+- `RN-INV-106` — Pasado ese límite no se reabre ni se registran movimientos: una *nota de corrección* liga las diferencias afectadas como un mismo error, y los reportes las muestran compensadas.
+- `RN-INV-107` — Reabrir exige motivo y un rol con permiso (Propietario, Administrador de sede o Supervisor). Quien hizo la medición no puede autorizar su propia reapertura, salvo el Propietario. Aplica `RN-ROL-004`.
+- `RN-INV-108` — Si se reabre la finalización de un envase y la estación ya tiene otro en servicio del mismo insumo, el contenido corregido se suma al envase en servicio, con nota.
+
+### Conteo físico y envases abiertos
+
+- `RN-INV-109` — Por defecto, el conteo físico cuenta envases cerrados. Los envases en servicio de las estaciones que sacan de esa bodega aparecen con su última medición, o con su contenido teórico si nunca se midieron, y no generan diferencia de conteo.
+- `RN-INV-110` — Un conteo marcado *incluir abiertas* mide los envases en servicio con `nivel` o `peso`, aunque su verificación sea `al finalizar`. La diferencia es *diferencia de envase* con origen `conteo`: entre turnos si la estación está cerrada, del turno en curso si está abierta. Si no coincide con el último cierre, queda marcada así, y lo medido es el punto de partida de la apertura siguiente.
+- `RN-INV-111` — Si se abre un envase de un insumo mientras su bodega está en conteo, la línea de ese insumo queda *por recontar*. El conteo no se cierra sin recontarla o sin confirmar que se contó antes de la apertura.
 
 ---
 
@@ -443,10 +627,10 @@ entera y no queda medio aplicada.
 > Como **administrador de sede** quiero que el inventario se descuente solo con cada venta
 > para no llevar el control a mano.
 
-- `CA-1` — Dado un producto *Cuba Libre* con receta (50 ml ron, 200 ml gaseosa) y stock suficiente, cuando el POS confirma la venta de 2 unidades, entonces se descuentan 100 ml de ron y 400 ml de gaseosa de la bodega de venta, en un movimiento con origen `pos` y referencia a la venta.
+- `CA-1` — Dado un producto *Cuba Libre* con receta (50 ml ron, 200 ml gaseosa), ron `envase abierto` con una botella en servicio en la Barra y gaseosa `granel`, cuando el POS confirma la venta de 2 unidades, entonces se descuentan 100 ml del envase en servicio de ron de la Barra y 400 ml de gaseosa de la bodega de venta, en un movimiento con origen `pos` y referencia a la venta.
 - `CA-2` — Dado el mismo producto con modificador *doble*, cuando se vende 1 con ese modificador, entonces se descuentan 100 ml de ron y 200 ml de gaseosa.
 - `CA-3` — Dado un producto sin receta, cuando se vende, entonces no se genera ningún movimiento de inventario y no se reporta error.
-- `CA-4` *(rechazo/alerta)* — Dado un insumo con stock 30 ml, cuando se confirma una venta que consume 50 ml, entonces la venta **no se bloquea**, el stock queda en −20 ml y se genera una alerta de inconsistencia.
+- `CA-4` *(rechazo/alerta)* — Dado un insumo `granel` con stock 30 ml, cuando se confirma una venta que consume 50 ml, entonces la venta **no se bloquea**, el stock queda en −20 ml y se genera una alerta de inconsistencia.
 - `CA-5` — Dado que el módulo `pos` no está instalado, cuando el bodeguero registra una salida manual con motivo *venta*, entonces el sistema la acepta igual que la automática.
 
 ### `HU-INV-003` — Registrar una merma
@@ -467,7 +651,10 @@ entera y no queda medio aplicada.
 - `CA-1` — Cuando inicio un conteo de la bodega Barra, entonces el sistema congela la cantidad teórica de cada insumo del alcance.
 - `CA-2` — Dado un insumo con teórico 40 y contado 37, cuando cierro el conteo, entonces se genera un ajuste de −3 con motivo *diferencia de conteo* y el stock queda en 37.
 - `CA-3` — Dado que durante el conteo se vendieron 2 unidades de ese insumo, cuando cierro el conteo, entonces la diferencia se calcula contra el teórico congelado (40), no contra el stock actual.
-- `CA-4` *(rechazo)* — Dado un conteo cerrado, cuando intento modificarlo, entonces el sistema lo impide y sugiere crear un conteo nuevo.
+- `CA-4` *(rechazo)* — Dado un conteo cerrado, cuando intento editarlo, entonces el sistema lo impide y ofrece reabrirlo con motivo y autorización (`RN-INV-103`).
+- `CA-5` — Dado un conteo de la bodega Barra sin *incluir abiertas*, entonces se cuentan las botellas cerradas de ron y la botella en servicio de Barra terraza aparece con los 440 ml de su último cierre, sin línea de diferencia.
+- `CA-6` — Dado un conteo con *incluir abiertas*, la Barra terraza cerrada y su último cierre en 440 ml de whisky, cuando la auditoría mide 300 ml, entonces se registra una diferencia entre turnos de −140 ml marcada "no coincide con el cierre de las 03:00", y 300 ml es el punto de partida de la apertura siguiente.
+- `CA-7` *(rechazo)* — Dado que la cocina abrió una botella de ron a las 10:15 durante el conteo, cuando intento cerrar el conteo, entonces el sistema lo impide hasta que recuente la línea del ron o confirme que la conté antes de las 10:15.
 
 ### `HU-INV-005` — Saber qué reponer
 
@@ -516,17 +703,21 @@ entera y no queda medio aplicada.
 - `CA-4` — Dado un despiece que produce lomo y recortes, cuando confirmo la orden, entonces el costo total se reparte entre ambos según la proporción declarada, y la suma es el costo de la pieza original.
 - `CA-5` *(rechazo)* — Cuando intento ingresar almíbar como entrada manual con motivo *producción*, entonces el sistema lo rechaza e indica que debe hacerse con una orden de producción.
 
-### `HU-INV-010` — Controlar una botella empezada
+### `HU-INV-010` — Controlar una botella abierta
 
-> Como **jefe de barra** quiero saber cuánto queda realmente en las botellas abiertas para
-> detectar si se está sirviendo de más.
+> Como **jefe de barra** quiero saber cuánto se sirvió realmente de cada botella abierta para
+> detectar si se está sirviendo de más o se está perdiendo licor.
 
-- `CA-1` — Dado un ron con método `peso` y tara de 500 g, cuando en el conteo registro un peso bruto de 890 g, entonces el sistema deriva 390 ml de contenido y calcula la diferencia contra el teórico.
-- `CA-2` — Dado el mismo ron con teórico 450 ml y verificado 390 ml, entonces se genera un ajuste de −60 ml con motivo *diferencia de conteo*.
-- `CA-3` — Dado un insumo con método `nivel` y una diferencia dentro del umbral configurado, entonces **no** se genera alerta: el método asume imprecisión.
-- `CA-4` — Dada una cerveza con método `unidad`, cuando se vende una, entonces se descuenta una unidad y no existe envase en servicio.
-- `CA-5` — Dado un insumo con método `apertura`, cuando abro una botella de 750 ml, entonces se descuentan 750 ml del stock y se crea un envase en servicio; las ventas siguientes no vuelven a descontar hasta la próxima apertura.
-- `CA-6` *(rechazo)* — Cuando intento registrar un peso bruto menor que la tara declarada, entonces el sistema lo rechaza indicando que el envase no puede pesar menos que vacío.
+- `CA-1` — Dado un ron `envase abierto` con 10 botellas cerradas en la bodega Barra, cuando la Barra terraza abre una a las 21:10, entonces quedan 9 cerradas y un envase en servicio de 750 ml a cargo de Barra terraza, la existencia total no cambia y el kardex registra la apertura con responsable y hora.
+- `CA-2` — Dada esa botella con porción de referencia de 50 ml y tolerancia del 3 %, cuando se venden 13 Cuba Libre (650 ml) y la finalizo, entonces se registra un ajuste de −100 ml con motivo *diferencia de envase* al CPP vigente y se genera una alerta, porque 100 ml superan el 3 % de 650 ml.
+- `CA-3` — Dado un whisky con verificación `peso` y empaque de 750 ml con peso vacío 500 g y lleno 1.250 g, cuando registro un peso bruto de 875 g, entonces el sistema deriva 375 ml sin usar densidad.
+- `CA-4` — Dada una botella en servicio de 750 ml en una estación `en línea`, cuando las ventas llegan a 800 ml sin que se haya finalizado, entonces se genera en ese momento una alerta de *envase excedido*.
+- `CA-5` — Dado que no hay botella de ron en servicio en la Barra, cuando se venden 3 Cuba Libre (150 ml), entonces la venta no se bloquea, se genera una alerta de trazabilidad y, al abrir una botella a las 21:40, se le cargan los 150 ml con el aviso "se cargaron 150 ml de 3 ventas sin botella abierta".
+- `CA-6` — Dadas la cocina caliente y pastelería sacando aceite de la misma despensa, cuando cada una abre su botella, entonces hay dos envases en servicio, uno por estación, y cada uno responde por sus ventas.
+- `CA-7` — Dada una cerveza `unidad`, cuando se vende una, entonces se descuenta una unidad y no existe envase en servicio.
+- `CA-8` *(rechazo)* — Dada una botella de ron en servicio en la Barra terraza, cuando intento abrir otra en la misma estación, entonces el sistema me pide finalizar la anterior.
+- `CA-9` *(rechazo)* — Cuando registro un peso bruto de 450 g para un empaque con peso vacío de 500 g, entonces el sistema lo rechaza indicando que el envase no puede pesar menos que vacío.
+- `CA-10` — Dada la botella de aceite en servicio de la cocina caliente, cuando se la presta a pastelería sin medirla, entonces pasa a cargo de pastelería con su contenido teórico, y la siguiente medición calcula una diferencia marcada *compartida entre estaciones*.
 
 ### `HU-INV-011` — Compartir insumos entre sedes
 
@@ -539,6 +730,40 @@ entera y no queda medio aplicada.
 - `CA-4` *(rechazo)* — Cuando intento usar un insumo `local` en una receta `global`, entonces el sistema lo rechaza y ofrece promover el insumo a `global`.
 - `CA-5` *(rechazo)* — Dado que soy Administrador de una sede, cuando intento crear un insumo `global`, entonces el sistema me lo niega por falta de alcance.
 
+### `HU-INV-012` — Cerrar y abrir el turno de una estación
+
+> Como **bartender** quiero entregar y recibir las botellas abiertas al cambiar de turno para que
+> cada turno responda solo por lo suyo.
+
+- `CA-1` — Dada la Barra terraza con un whisky `peso`, un triple sec `nivel` y un ron `al finalizar` en servicio, cuando hago el cierre, entonces peso el whisky, estimo el triple sec y solo confirmo que el ron sigue ahí.
+- `CA-2` — Dado el whisky con 400 ml teóricos, cuando en el cierre lo peso en 375 ml, entonces se registra un ajuste de −25 ml con motivo *diferencia de envase* y 375 ml es el contenido de partida del turno siguiente.
+- `CA-3` — Dado ese cierre, cuando el turno siguiente abre con *recibido conforme*, entonces arranca con 375 ml y no hay diferencia entre turnos.
+- `CA-4` — Dado ese cierre, cuando el turno siguiente mide el whisky en 250 ml, entonces se registra una diferencia entre turnos de −125 ml que no se atribuye a ninguno de los dos turnos.
+- `CA-5` *(rechazo)* — Dado que la Barra terraza no hizo cierre, cuando el turno siguiente intenta abrir con *recibido conforme*, entonces el sistema lo rechaza y exige medir; además existe la alerta *estación sin cierre*.
+
+### `HU-INV-013` — Recibir ventas que llegan tarde
+
+> Como **administrador de sede** quiero que las ventas que llegan tarde no dañen la existencia
+> ni culpen al turno equivocado.
+
+- `CA-1` — Dado un whisky de 750 ml abierto a las 21:00, 6 ventas (300 ml) retenidas por un corte de red entre 22:00 y 23:00 y un cierre a las 03:00 que lo pesa en 440 ml con diferencia de −310 ml, cuando las ventas llegan a las 03:20, entonces la existencia sigue en 440 ml, la diferencia del turno pasa a −10 ml, la alerta se cierra y queda una nota de venta tardía.
+- `CA-2` — Dado un ron `al finalizar` en servicio sin mediciones desde las 22:00, cuando llegan tarde ventas de las 22:30, entonces descuentan del envase normalmente.
+- `CA-3` — Dada una estación `por archivo`, cuando a la 01:00 se finaliza una botella sin ventas cargadas, entonces la diferencia queda *pendiente de ventas* y no hay alerta; cuando a las 04:00 se importa el archivo del periodo 18:00–03:00, entonces se calcula la diferencia y se generan las alertas que correspondan, sin notas de venta tardía.
+- `CA-4` — Dado un archivo que solo trae totales por día, cuando se importa, entonces la diferencia se calcula por día de operación y estación, y la de cada envase y turno queda *sin detalle*.
+- `CA-5` — Dado un corte de red durante el cual una botella de ron se acabó a las 22:10 y se abrió otra, cuando al volver la red registro la finalización y la apertura declarando las 22:10, entonces las ventas de antes de las 22:10 van a la botella vieja y las de después a la nueva.
+- `CA-6` *(rechazo)* — Dada una botella finalizada a las 22:10, cuando intento registrar la apertura de la siguiente declarando las 22:05, entonces el sistema lo rechaza por ser anterior a la finalización.
+
+### `HU-INV-014` — Reabrir un cierre mal hecho
+
+> Como **administrador de sede** quiero corregir un cierre equivocado sin perder el rastro de lo
+> que se registró primero.
+
+- `CA-1` — Dado un cierre de las 03:00 que registró el whisky en 240 ml (diferencia −210 ml) y la barra aún sin abrir, cuando lo reabro a las 11:20 con motivo "se pesó la botella equivocada" y lo peso en 440 ml, entonces el ajuste de −210 ml se anula con un movimiento inverso, la versión nueva registra −10 ml y la versión original queda visible como *reabierta*.
+- `CA-2` — Dado que el turno siguiente ya abrió con *recibido conforme*, cuando reabro el cierre anterior, entonces solo puedo corregir el valor registrado, y las diferencias entre turnos y del turno en curso quedan marcadas *recalculado por reapertura*.
+- `CA-3` — Dada una botella marcada finalizada con 200 ml y otra ya en servicio en la estación, cuando reabro la finalización, entonces los 200 ml se suman al envase en servicio, con nota.
+- `CA-4` *(rechazo)* — Dado que el turno siguiente ya se cerró, cuando intento reabrir el cierre, entonces el sistema no lo permite y ofrece una nota de corrección que liga las dos diferencias.
+- `CA-5` *(rechazo)* — Dado que soy el Supervisor que hizo el cierre, cuando intento autorizar su reapertura, entonces el sistema lo niega y pide la autorización de un Administrador o del Propietario.
+
 ---
 
 ## 9. Casos límite y errores
@@ -549,15 +774,27 @@ entera y no queda medio aplicada.
 | Venta de un producto sin receta | No genera movimiento, no es error (`RN-INV-019`). |
 | Insumo de la receta inactivo | La venta descuenta igual; se genera alerta de configuración. |
 | Dos movimientos simultáneos sobre la misma existencia | Se procesan en serie; el CPP se recalcula en el orden de confirmación. Nunca se pierde un movimiento. |
-| Sin conexión | Inventario no opera: no registra, no encola, no muestra existencias (`RN-INV-067`). Lo que otro módulo haya encolado se aplica al reconectar, con fecha de hecho y fecha de recepción (`RN-INV-068`). |
+| Sin conexión | Inventario no opera: no registra, no encola, no muestra existencias (`RN-INV-067`). Lo que otro módulo haya encolado se aplica al reconectar, con fecha de hecho y fecha de recepción (`RN-INV-100`…`102`). Aperturas y finalizaciones se registran al volver, con hora declarada (`RN-INV-099`). |
 | Conversión entre dimensiones (ml → g) | **Siempre rechazada** (`RN-INV-046`). El caso real se resuelve declarando el contenido del empaque en la unidad base: un tetrapak = 1030 g. |
 | Entrada con costo cero | Permitida con motivo (`RN-INV-017`). |
 | Insumo con stock en una bodega que se desactiva | No se permite desactivar una bodega con stock ≠ 0. Debe trasladarse o ajustarse antes. |
 | Receta con ciclo (A contiene B que contiene A) | Rechazada al guardar (`RN-INV-025`). |
 | Cambio de unidad base de un insumo con movimientos | Prohibido. Debe crearse un insumo nuevo. |
-| Movimiento que llega después de cerrado un conteo | Se registra y afecta el stock actual, pero no altera el conteo cerrado. Genera alerta de llegada tardía (`RN-INV-069`). |
+| Movimiento que llega después de cerrado un conteo | No cambia la existencia: reclasifica la diferencia del conteo y deja nota; el documento del conteo no se modifica (`RN-INV-102`). |
 | Orden de producción sin existencia suficiente | Rechazada entera (`RN-INV-066`). A diferencia de la venta, producir sí puede esperar. |
-| Envase con método `nivel` y diferencia pequeña en el conteo | No dispara alerta si está dentro del umbral configurado: el método asume imprecisión (`RN-INV-055`). |
+| Diferencia de envase dentro de la tolerancia | Se registra sin alerta (`RN-INV-086`). |
+| Venta de un insumo `envase abierto` sin envase en servicio | No se bloquea; alerta y ml pendientes para el próximo envase de esa estación (`RN-INV-083`). |
+| Abrir un segundo envase del mismo insumo en la misma estación | Exige finalizar el anterior (`RN-INV-080`). |
+| Peso bruto fuera del rango vacío–lleno | Rechazado (`RN-INV-075`). |
+| Envase prestado a otra estación sin medir | Pasa con su contenido teórico; la siguiente diferencia queda *compartida entre estaciones* (`RN-INV-114`). |
+| Venta sin estación (archivo o registro manual) | Consume de la estación por defecto de la bodega (`RN-INV-112`). |
+| Estación que no hizo cierre | No se bloquea; alerta y apertura siguiente con medición obligatoria (`RN-INV-094`). |
+| Venta que llega después de una medición | No cambia la existencia; reclasifica la diferencia y deja nota (`RN-INV-102`). |
+| Archivo de ventas sin hora | Conciliación por día y estación, sin detalle por envase ni turno (`RN-INV-098`). |
+| Archivo de ventas que no llega | Turno *pendiente de ventas* y alerta al vencer el plazo (`RN-INV-097`). |
+| Hora declarada anterior al evento previo | Rechazada (`RN-INV-099`). |
+| Error en un cierre descubierto con el turno siguiente ya cerrado | No se reabre; nota de corrección (`RN-INV-106`). |
+| Envase abierto durante un conteo de su bodega | Línea *por recontar* (`RN-INV-111`). |
 | Insumo `local` usado en una receta `global` | Rechazado al guardar. Hay que promover el insumo a `global` (`RN-INV-042`). |
 | Despiece que rinde menos de lo esperado | La diferencia se registra como merma de producción con su costo (`RN-INV-063`). |
 | Importación masiva con filas inválidas | Se importan las válidas, se reporta línea por línea lo rechazado. No se importa parcialmente un movimiento. |
@@ -568,7 +805,9 @@ entera y no queda medio aplicada.
 
 | Interfaz | Dirección | Con quién | Qué información | Si el otro no existe |
 |---|---|---|---|---|
-| Venta confirmada | ◄ entra | `pos` | Producto, cantidad, modificadores, sede, estación, fecha, referencia | Salida manual con motivo *venta*, o importación de archivo de ventas |
+| Venta confirmada | ◄ entra | `pos` | Producto, cantidad, modificadores, sede, estación, fecha y hora, referencia | Salida manual con motivo *venta*, o importación de un archivo de ventas con periodo (desde–hasta) y, si los tiene, estación y hora por venta |
+| Precio de carta | ◄ entra | `catalogo` | Precio del producto asociado a la porción de referencia | No se muestra la venta perdida |
+| Estaciones | ◄ entra | `kds`, `pos` | Identificador y nombre de las estaciones activas de la sede | Cada bodega de venta opera con su estación por defecto (`RN-INV-113`) |
 | Recepción de mercancía | ◄ entra | `compras` | Insumo, cantidad, unidad, costo, proveedor, lote, referencia | Entrada manual con costo digitado |
 | Identidad de productos | ◄ entra | `catalogo` | Producto vendible y sus modificadores | Inventario declara localmente los productos a los que asocia recetas |
 | Sedes y bodegas activas | ◄ entra | `tenancy` | Sedes del tenant | No aplica: módulo de plataforma obligatorio |
@@ -577,6 +816,7 @@ entera y no queda medio aplicada.
 | Disponibilidad de un producto | ► sale | `pos`, `pedidos-qr`, `catalogo` | Cuántas unidades alcanzan los insumos de su receta | — |
 | Costo de receta | ► sale | `catalogo`, `reportes` | Costo unitario derivado | — |
 | Alertas de stock | ► sale | `notificaciones`, `compras` | Insumo, bodega, tipo de alerta | Se consultan desde el propio módulo |
+| Alertas y avisos de envases | ► sale | `notificaciones` | Envase excedido, diferencia sobre tolerancia, estación sin cierre, turno sin ventas cargadas, notas de venta tardía | Se consultan desde el propio módulo |
 | Valorización | ► sale | `reportes` | Valor del inventario a una fecha, por sede y bodega | Informe propio del módulo |
 
 > **Nota:** ninguna de estas interfaces implica una decisión técnica. Describen qué
@@ -617,8 +857,16 @@ entera y no queda medio aplicada.
 | Anular orden de producción | ✔ | ✔ | — | — | — | — | — |
 | Crear/editar insumos `global` | ✔ | — | — | — | — | — | — |
 | Crear/editar insumos `local` | ✔ | ✔ | — | — | — | — | — |
-| Abrir envase / registrar peso en conteo | ✔ | ✔ | ✔ | ✔ | — | ✔ | — |
+| Abrir / finalizar / prestar envase | ✔ | ✔ | ✔ | — | — | ✔ | — |
+| Hacer cierre y apertura de estación | ✔ | ✔ | ✔ | — | — | ✔ | — |
+| Reabrir cierre, apertura, finalización o conteo | ✔ | ✔ | ✔ | — | — | — | — |
+| Conteo con *incluir abiertas* (auditoría) | ✔ | ✔ | — | — | — | — | — |
 | Configurar mínimos y umbrales | ✔ | ✔ | — | — | — | — | — |
+| Configurar tipo de control, verificación, tolerancia y estaciones | ✔ | ✔ | — | — | — | — | — |
+
+> **Provisional:** quién abre, finaliza y hace cierre en la estación ("Jefe estación") se alinea
+> con el rol *Estación* de [`05-actores-y-roles`](../05-actores-y-roles.md), que hoy no tiene
+> permisos de inventario. Pendiente de alinear ambas matrices.
 
 ---
 
@@ -635,7 +883,12 @@ entera y no queda medio aplicada.
 - **Reposición sugerida**: insumos bajo mínimo y cantidad hasta el máximo.
 - **Costo de recetas** y su evolución en el tiempo.
 - **Producción interna**: qué se produjo, cuánto rindió frente a lo esperado y a qué costo.
-- **Envases abiertos**: cuántos hay en servicio, desde cuándo y con cuánto contenido teórico.
+- **Envases en servicio**: por estación, desde cuándo, contenido teórico y porciones restantes.
+- **Diferencias de envase**: por insumo, envase, estación y turno, con faltante y sobrante, costo y,
+  si hay `catalogo`, venta perdida. Separa las **diferencias entre turnos**.
+- **Turnos de estación**: cierres y aperturas, estaciones sin cierre y turnos pendientes de ventas.
+- **Auditoría de mediciones**: reaperturas con versiones, motivos y autorizaciones; notas de venta
+  tardía y de corrección.
 - **Próximos a vencer**, por lote.
 
 ---
@@ -653,8 +906,12 @@ entera y no queda medio aplicada.
 | Motivos de movimiento | Tenant | Catálogo por defecto (5.8) |
 | Categorías de insumo | Tenant | Catálogo por defecto |
 | Exigir conteo antes del cierre de mes | Sede | No |
-| Método de control de envase abierto por defecto | Tenant | `unidad` |
-| Umbral de diferencia aceptable con método `nivel` | Sede | Por definir (`PA-INV-012`) |
+| Tipo de control por defecto | Tenant | `unidad` |
+| Verificación por defecto (para `envase abierto`) | Tenant | `al finalizar` |
+| Tolerancia de diferencia por defecto | Tenant | 3 % del consumo |
+| Origen de ventas de una estación | Estación | `en línea` si `pos` está instalado; si no, `por archivo` |
+| Plazo para alertar turno sin ventas cargadas | Sede | 24 h |
+| Estación por defecto de una bodega de venta | Bodega | La que se crea con la bodega |
 | Ámbito por defecto al crear un insumo | Tenant | `global` |
 | Exigir autorización para confirmar orden de producción | Sede | No |
 
@@ -684,16 +941,21 @@ entera y no queda medio aplicada.
 | `PA-INV-003` | **Prohibida la conversión entre dimensiones.** No hay densidad. El caso real se resuelve con **empaques que declaran su contenido en la unidad base**: un tetrapak de crema = 1030 g. → `RN-INV-045`…`050` |
 | `PA-INV-005` | **Lote y vencimiento opcionales por insumo.** Los perecederos de cocina sí, el licor no. Salida sugerida por vencimiento más próximo (FEFO). |
 | `PA-INV-006` | **Sí, con orden de producción.** Documento formal que consume insumos y produce otro insumo con costo real derivado. Soporta subproductos (despiece). → `RN-INV-058`…`066` |
-| `PA-INV-010` | **Configurable por insumo:** `unidad`, `nivel`, `peso` o `apertura`. La venta siempre descuenta por receta; el método define cómo se verifica el remanente. → `RN-INV-051`…`057` |
-| `PA-INV-004` | **Inventario no tiene modo sin conexión.** Sin red no registra, no encola y no muestra existencias. → `RN-INV-067`…`069`. *Queda una consecuencia por confirmar: ver `PA-INV-011`.* |
+| `PA-INV-010` | **Configurable por insumo** — *revisada 2026-09-15:* tipo de control `unidad`, `granel` o `envase abierto`; verificación `al finalizar`, `nivel` o `peso`. La venta siempre descuenta por receta; el envase abierto pertenece a una estación, que lo entrega y recibe con cierre y apertura de turno. → `RN-INV-070`…`099`, `112`…`114` (las originales `051`…`057` quedan derogadas) |
+| `PA-INV-004` | **Inventario no tiene modo sin conexión.** Sin red no registra, no encola y no muestra existencias. → `RN-INV-067`, `RN-INV-100`…`102`. *Su consecuencia, `PA-INV-011`, se cerró el 2026-09-15.* |
+
+### Cerradas en la sesión del 2026-09-15
+
+| Id | Resolución |
+|---|---|
+| `PA-INV-011` | **Las ventas tardías sí se aplican.** Si hubo una medición posterior no cambian la existencia: reclasifican su diferencia y dejan nota de venta tardía. → `RN-INV-100`…`102` |
+| `PA-INV-012` | **Reemplazada por la tolerancia por insumo**, calculada sobre el consumo del periodo medido. → `RN-INV-086` |
 
 ### Abiertas
 
 - `PA-INV-007` — ¿Se necesita inventario de envases retornables y su control de devolución? Relevante en Colombia para cerveza y gaseosa en vidrio.
 - `PA-INV-008` — ¿Quién define las recetas en la práctica: el administrador o el chef/bartender? Si es el segundo, hace falta un flujo de propuesta y aprobación.
-- `PA-INV-009` — ¿El conteo físico se hace con un dispositivo móvil en la bodega? Cambia la experiencia, no las reglas. Con método `peso` implica báscula conectada o digitación manual.
-- `PA-INV-011` — **Consecuencia de `PA-INV-004`.** Si el POS vende durante un corte de red, esas ventas llegan tarde. ¿Se aplican al inventario cuando vuelve la conexión, o se descartan y la diferencia se corrige con un conteo? `RN-INV-068` asume lo primero; falta confirmarlo.
-- `PA-INV-012` — ¿Qué umbral de diferencia se considera aceptable con método `nivel` antes de generar alerta? Necesario para que `RN-INV-055` sea verificable.
+- `PA-INV-009` — ¿El conteo físico se hace con un dispositivo móvil en la bodega? Cambia la experiencia, no las reglas. Con verificación `peso` implica báscula conectada o digitación manual.
 
 ## 17. Checklist de cierre
 
@@ -706,6 +968,6 @@ entera y no queda medio aplicada.
 - [x] Todos los importes llevan moneda
 - [x] Todo término nuevo está en el glosario
 - [x] Toda historia tiene al menos un criterio de rechazo
-- [ ] **No quedan preguntas abiertas** ← 5 pendientes (eran 10; 7 cerradas, 2 nuevas derivadas)
+- [ ] **No quedan preguntas abiertas** ← 3 pendientes (`PA-INV-007`, `008`, `009`)
 - [x] La ficha se entiende sin abrir la ficha de otro módulo
 - [ ] **Revisada y aprobada por Jorge**

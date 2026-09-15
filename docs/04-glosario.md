@@ -92,7 +92,8 @@ dados. Un mismo producto puede estar en varias cartas con distinto precio.
 ítems de un pedido que le corresponden a esa estación.
 
 **Estación** — Punto de preparación dentro de una sede: cocina, barra, parrilla. Cada
-producto se prepara en una estación.
+producto se prepara en una estación. Cada bodega de venta tiene una estación por defecto que
+consume de ella.
 
 **Pedido** — Conjunto de ítems solicitados en un momento. Un cliente puede hacer varios
 pedidos durante una visita.
@@ -130,12 +131,33 @@ contiene *expresado en la unidad base del insumo*. Un tetrapak de crema declara 
 1 litro. Es lo que permite comprar en volumen y consumir en masa sin convertir nunca entre
 dimensiones.
 
-**Envase en servicio** — Envase ya abierto del que se está sirviendo. Solo existe para
-insumos cuyo método de control lo requiere.
+**Tipo de control** — Cómo se lleva la existencia de un insumo: `unidad` (indivisible, se
+descuenta entero), `granel` (sin envase; se verifica en el conteo) o `envase abierto` (se abre y se
+sirve de él durante un tiempo). Se configura por insumo.
 
-**Método de control de envase abierto** — Cómo se verifica lo que queda en un envase
-empezado: `unidad` (indivisible), `nivel` (estimación visual), `peso` (báscula, con tara) o
-`apertura` (se descuenta completo al abrir). Se configura por insumo.
+**Verificación** — Para un insumo `envase abierto`, cómo se mide lo que queda: `al finalizar`
+(solo cuando se acaba), `nivel` (estimación a ojo) o `peso` (báscula, con peso vacío y lleno del
+empaque).
+
+**Envase en servicio** — Envase ya abierto del que se está sirviendo, a cargo de la estación que
+lo abrió. Cuenta en la existencia de la bodega de la que salió.
+
+**Turno de estación** — Periodo entre la apertura y el cierre de una estación, en el que esa
+estación responde por sus envases en servicio. Es de inventario; no es un turno de caja ni de
+personal.
+
+**Diferencia de envase** — Contenido medido menos contenido teórico de un envase en servicio.
+Faltante si es negativa, sobrante si es positiva. Se registra como ajuste, no como merma, porque
+su causa es desconocida.
+
+**Diferencia entre turnos** — Lo que cambió un envase entre el cierre de un turno y la apertura
+del siguiente. No se atribuye a ninguno de los dos.
+
+**Nota de venta tardía** — Registro de que unas ventas llegaron después de una medición y
+explican parte de su diferencia. La existencia no cambia.
+
+**Porción de referencia** — Cantidad que representa una porción de un insumo (un trago de 50 ml).
+Sirve para mostrar porciones restantes y la venta perdida.
 
 **Orden de producción** — Documento que transforma unos insumos en otro insumo distinto:
 almíbar, salsa madre, infusión, despiece. El insumo producido entra con costo real derivado,

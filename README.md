@@ -34,7 +34,7 @@ escrito antes de escribirlo en código.
 (lenguajes, frameworks, base de datos, despliegue). Se define **un módulo a la vez, hasta
 terminarlo** — ver [`ADR-0005`](docs/decisiones/ADR-0005-construccion-modulo-a-modulo.md).
 
-**Módulo en curso: [`inventario`](docs/modulos/inventario.md)** — 5 preguntas abiertas por cerrar.
+**Módulo en curso: [`inventario`](docs/modulos/inventario.md)** — 3 preguntas abiertas por cerrar.
 
 | Bloque | Estado |
 |---|---|
