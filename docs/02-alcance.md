@@ -1,6 +1,6 @@
 # Alcance y cola de construcción
 
-> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-09-14
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-10-02
 
 ## 1. Alcance del producto (visión completa)
 
@@ -45,33 +45,14 @@ Esas cosas se abren **después**, módulo por módulo, una vez su definición fu
 Un módulo está terminado cuando pasa su checklist de cierre, incluyendo **cero preguntas
 abiertas** (`RN-ARQ-006`).
 
-### En curso
+### Dónde vive la cola
 
-| # | Módulo | Estado | Qué falta |
-|---|---|---|---|
-| 1 | [`inventario`](modulos/inventario.md) | 🟡 Borrador | Cerrar 5 preguntas abiertas y aprobar |
-
-### Cola
+La cola vigente, con la posición y el estado de cada módulo, vive en un solo sitio: el
+[catálogo de módulos](06-catalogo-modulos.md#cola-de-construcción). Las preguntas abiertas del
+módulo en curso viven en su ficha. Este documento no repite ninguna de las dos cosas.
 
 El orden es **reordenable**. Al terminar cada módulo se revisa cuál sigue, con dos
 criterios: *(a)* ¿vale por sí solo? *(b)* ¿su vocabulario desbloquea a los siguientes?
-
-```
-inventario  ←  en curso
-    │
-    ├─ catalogo          productos, recetas, cartas, precios
-    ├─ salon-mesas       zonas, mesas, QR
-    ├─ pos               venta, cuenta, cobro
-    ├─ caja              apertura, arqueo, cierre
-    ├─ pedidos-qr        sesión de mesa, pedido desde el teléfono
-    ├─ kds               comandas en cocina y barra
-    │
-    ├─ tenancy · iam · localizacion-co        plataforma
-    │
-    ├─ gamecenter · social · identidad-cliente · pagos
-    │
-    └─ compras · schedule · reportes · fidelizacion · reservas · notificaciones
-```
 
 ### Por qué la plataforma va en medio y no al principio
 
@@ -117,6 +98,6 @@ Cosas que Barscode **no** hace, escritas para que nadie las asuma:
 
 - ~~`PA-ALC-001`~~ — **Disuelta** (2026-09-14): no hay fases. Ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md).
 - `PA-ALC-002` — ¿Se exige operación sin conexión (offline)? **Resuelta para `inventario`** (2026-09-14): no tiene modo sin conexión (`RN-INV-067`). **Sigue abierta para `pos` y `kds`.** Del lado de inventario ya está resuelto qué pasa con las ventas que el POS registre sin red (`PA-INV-011`, cerrada 2026-09-15): se aplican al volver la conexión y, si hubo una medición posterior, reclasifican su diferencia sin cambiar la existencia.
-- `PA-ALC-003` — ¿Se incluye facturación electrónica DIAN o basta el comprobante de venta? Se resuelve al definir `localizacion-co`.
+- ~~`PA-ALC-003`~~ — **Fusionada** (2026-10-02) con `PA-ARQ-011` de [`03-principios.md`](03-principios.md): era la misma pregunta. Se resuelve al definir `localizacion-co`.
 - `PA-ALC-004` — ¿App móvil nativa o basta la web por QR? La web cubre el pedido; la app nativa es lo que habilita bien el Gamecenter. Se resuelve al definir `pedidos-qr`.
 - `PA-ALC-005` — ¿Hay una fecha objetivo o un compromiso externo que condicione el orden de la cola?

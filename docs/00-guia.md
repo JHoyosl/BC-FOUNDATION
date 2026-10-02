@@ -1,5 +1,7 @@
 # Cómo usar y mantener este KB
 
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-10-02
+
 ## Para qué existe
 
 Barscode se detuvo la primera vez porque el alcance no estaba escrito: cada decisión abría
@@ -36,9 +38,12 @@ Todo documento lleva un bloque de cabecera:
 | 🔴 Incompleto | Hay contenido, faltan secciones obligatorias. |
 | 🟡 Borrador | Completo, pendiente de revisión de Jorge. |
 | 🟢 Aprobado | Revisado. Sirve como fuente para desarrollo. |
-| 🔵 Congelado | Aprobado y cerrado para la fase en curso. Cambiarlo exige un ADR. |
+| 🔵 Congelado | Aprobado y cerrado: el módulo entró a desarrollo. Cambiarlo exige un ADR. |
 
 Un documento con **Preguntas abiertas** no puede estar 🟢. Sin excepción.
+
+Los ADR llevan su propio estado: `Aceptada`, `Pendiente` (la pregunta está registrada y aún no
+se decide) o `Reemplazada por ADR-nnnn`. El README y la bitácora no llevan cabecera de estado.
 
 ### Identificadores
 
@@ -48,8 +53,17 @@ Un documento con **Preguntas abiertas** no puede estar 🟢. Sin excepción.
 | Requisito / regla | `RN-<MOD>-<nnn>` | `RN-INV-014` |
 | Historia de usuario | `HU-<MOD>-<nnn>` | `HU-INV-003` |
 | Criterio de aceptación | `CA-<HU>-<n>` | `CA-HU-INV-003-2` |
+| Permiso | `PRM-<MOD>-<nnn>` | `PRM-INV-001` |
 | Decisión | `ADR-<nnnn>` | `ADR-0001` |
 | Pregunta abierta | `PA-<MOD>-<nnn>` | `PA-INV-005` |
+| Restricción | `RES-<nnn>` | `RES-003` |
+| Supuesto | `SUP-<nnn>` | `SUP-001` |
+
+`<MOD>` es la abreviatura del módulo (`INV`). En los documentos fundacionales es la del
+documento o del tema: `GUIA`, `VIS`, `ALC`, `ARQ`, `GLO`, `ACT`, `ROL`, `CAT`.
+
+Dentro de su historia, un criterio se escribe abreviado (`CA-2`). Desde fuera de la historia se
+cita con el identificador completo (`CA-HU-INV-003-2`).
 
 Los identificadores **no se reciclan**. Si una regla se elimina, se marca `(derogada por
 RN-INV-021)` y se deja en el documento.
@@ -58,22 +72,22 @@ RN-INV-021)` y se deja en el documento.
 
 Una regla de negocio es una afirmación verificable, en presente, sin condicionales vagos.
 
-- ✅ `RN-INV-007` — Un movimiento de inventario confirmado no se edita; se corrige con un movimiento de ajuste que lo referencia.
+- ✅ `RN-INV-005` — Una corrección se hace con un movimiento de ajuste que referencia al original y explica el motivo.
 - ❌ "El inventario debería poder corregirse de alguna manera si el usuario se equivoca."
 
 ### Historias de usuario
 
 ```
-HU-INV-003 — Registrar merma
+HU-INV-003 — Registrar una merma
 Como jefe de barra
-quiero registrar una botella rota como merma
-para que el stock refleje la realidad y el costo quede atribuido.
+quiero registrar una botella rota
+para que el stock refleje la realidad y la pérdida quede atribuida.
 
-CA-HU-INV-003-1 — Dado un producto con stock 12, cuando registro merma de 1 con motivo
-                  "rotura", entonces el stock queda en 11 y el movimiento queda con motivo
-                  y responsable.
-CA-HU-INV-003-2 — Dado un producto con stock 0, cuando intento registrar merma, entonces
-                  el sistema lo rechaza indicando stock insuficiente.
+CA-1 — Dado un insumo con stock 12 y CPP $40.000 COP, cuando registro merma de 1 con motivo
+       "rotura", entonces el stock queda en 11 y el movimiento registra pérdida de
+       $40.000 COP, mi usuario y la hora.
+CA-4 (rechazo) — Dado stock 0 y stock negativo deshabilitado, cuando intento registrar merma
+       de 1, entonces el sistema la rechaza indicando existencia insuficiente.
 ```
 
 Criterios en formato Dado / Cuando / Entonces, siempre incluyendo al menos un caso de
@@ -86,10 +100,34 @@ rechazo. La mitad de la bola de nieve vive en los caminos infelices.
 3. **Se cierran preguntas.** Cada duda se escribe como `PA-…`; la sesión termina cuando no
    queda ninguna o las que quedan se escalan a ADR.
 4. **Revisión de Jorge.** 🟡 → 🟢.
-5. **Congelado** al entrar la fase a desarrollo. 🟢 → 🔵.
+5. **Congelado** al entrar el módulo a desarrollo. 🟢 → 🔵.
 
 Un módulo nunca se define aislado del [catálogo](06-catalogo-modulos.md): al cerrarlo hay que
 revisar si cambió algún contrato con otro módulo.
+
+## Fuente de la verdad y trabajo en curso
+
+Hay una sola fuente de la verdad, con tres niveles que no compiten entre sí:
+
+1. **`docs/` en `main`** — todo lo que ya está decidido. Es lo único que desarrollo lee.
+2. **`_work/`** — notas locales de la sesión en curso (`sesion-<AAAA-MM-DD>.md`) y borradores.
+   No se versiona (está en `.gitignore`) y no viaja a otra máquina. Vale solo mientras dura el
+   trabajo.
+3. **El historial de chat** — nunca es fuente. Lo que no quedó escrito en 1 o 2 no está
+   decidido.
+
+Reglas:
+
+- Lo que se decide en una sesión se anota en `_work/` en el momento, no al final.
+- Al cerrar un bloque de trabajo, lo decidido pasa a `docs/` y la sesión queda resumida en la
+  [bitácora](bitacora.md). **Nada decidido vive solo en `_work/`.**
+- Lo que queda sin decidir pasa a **Preguntas abiertas** del documento que corresponda, con la
+  propuesta que se haya discutido.
+- Si `docs/` y `_work/` se contradicen, manda `docs/`, salvo que la nota de sesión diga
+  expresamente que está revisando una regla.
+
+Una revisión completa del KB se guarda en `docs/revisiones/<AAAA-MM-DD>-<tema>.md`, con sus
+hallazgos y el estado de cada uno.
 
 ## Uso de Git
 
@@ -113,5 +151,5 @@ adr(0003): aislar impuestos y facturación como artefacto de país
 
 ## Preguntas abiertas
 
-- `PA-GUIA-001` — ¿Se versiona el KB con tags (`kb-v1.0`) al congelar cada fase, o basta el historial de Git?
+- `PA-GUIA-001` — ¿Se versiona el KB con tags (`kb-v1.0`) al congelar cada módulo, o basta el historial de Git?
 - `PA-GUIA-002` — ¿El KB se mantiene solo en español, o las fichas de módulo necesitan versión en inglés para terceros?

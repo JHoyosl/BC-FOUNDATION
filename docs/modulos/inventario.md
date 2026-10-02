@@ -1,6 +1,6 @@
 # Módulo: `inventario` — Inventario
 
-> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Orden:** 1 (en curso) · **Actualizado:** 2026-09-15
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Orden:** 1 (en curso) · **Actualizado:** 2026-10-02
 
 Esta ficha es la **referencia** del KB: define la forma que deben tener todas las demás.
 
@@ -20,7 +20,7 @@ tiempo.
 |---|---|
 | **Funciona solo** | Catálogo de insumos (global por tenant o local por sede) con unidades, dimensiones y empaques · bodegas · existencias · entradas, salidas, traslados, ajustes y mermas manuales · envases abiertos por estación con cierre y apertura de turno · fichas técnicas (recetas) y costeo · órdenes de producción interna · costo promedio ponderado · lotes y vencimientos · conteos físicos · alertas de mínimo · valorización del inventario · trazabilidad completa de movimientos. Un negocio que ya tiene POS de otro proveedor puede contratar solo Inventario y usarlo entero. |
 | **Degradación** | **Sin `pos`:** las salidas por venta se registran manualmente o por importación de un archivo de ventas; la estación se declara *por archivo* y sus diferencias esperan a que llegue el archivo que cubre el turno. **Sin `compras`:** las entradas se registran como entrada manual con costo digitado, sin orden de compra ni proveedor formal (queda un campo libre de proveedor). **Sin `catalogo`:** las recetas se definen contra un "producto vendible" declarado localmente por Inventario, no contra el catálogo comercial, y no se muestra la venta perdida. **Sin `kds` ni `pos`:** cada bodega de venta opera con su estación por defecto. **Sin `reportes`:** Inventario entrega sus propios informes básicos. |
-| **Consume** | De `pos`: ventas confirmadas (producto, cantidad, modificadores, sede, estación, fecha y hora) → para descontar insumos vía receta. De `compras`: recepciones de mercancía (insumo, cantidad, costo, proveedor) → para ingresar stock. De `catalogo`: identidad de los productos vendibles y su precio de carta → para asociar recetas y calcular la venta perdida. De `kds` o `pos`: estaciones → para atribuir envases abiertos. De `tenancy`: sedes activas. De `iam`: usuarios y permisos. **Todos con alternativa manual.** |
+| **Consume** | De `pos`: ventas confirmadas (producto, cantidad, modificadores, sede, estación, fecha y hora) → para descontar insumos vía receta. De `compras`: recepciones de mercancía (insumo, cantidad, costo, proveedor) → para ingresar stock. De `catalogo`: identidad de los productos vendibles y su precio de carta → para asociar recetas y calcular la venta perdida. De `kds` o `pos`: estaciones → para atribuir envases abiertos. De `tenancy`: sedes activas. De `iam`: usuarios y permisos. **Todos con alternativa manual, salvo `tenancy` e `iam`, que son plataforma obligatoria (`RN-ARQ-005`).** |
 | **Expone** | Existencia actual de un insumo en una bodega · costo unitario vigente de un insumo · costo calculado de una receta · disponibilidad para preparar un producto (cuántas unidades alcanzan los insumos) · operación de descontar/ingresar cantidad con referencia de origen · alertas de stock bajo o agotado · valorización del inventario a una fecha. |
 
 ---
@@ -79,7 +79,8 @@ tiempo.
 - **Costo promedio ponderado (CPP)** — Método de valoración: cada entrada recalcula el costo
   unitario promedio del insumo en la bodega.
 - **Kardex** — Historial cronológico de movimientos de un insumo en una bodega, con saldo y
-  costo después de cada uno.
+  costo después de cada uno. Muestra también los eventos de envase (abrir, prestar): no son
+  movimientos porque no cambian la existencia (`RN-INV-078`).
 
 ---
 
@@ -245,6 +246,10 @@ Catálogo configurable por tenant. Por defecto:
 | Salida | Venta · Consumo interno · Cortesía · Traslado saliente · Devolución a proveedor |
 | Merma | Rotura · Vencimiento · Derrame · Deterioro · Robo · Error de preparación |
 | Ajuste | Diferencia de conteo · Diferencia de envase · Corrección de registro |
+
+*Traslado entrante* y *traslado saliente* son los motivos del paso **entre sedes**, que se registra
+como salida en una y entrada en la otra (`RN-INV-008`). Entre bodegas de la misma sede el traslado
+es un solo movimiento de tipo `traslado` (`RN-INV-007`).
 
 ### 5.9 Receta (ficha técnica)
 Relación de un producto vendible con los insumos que consume.
@@ -434,6 +439,9 @@ cargo de la estación de destino.
 
 ## 7. Reglas de negocio
 
+> Las reglas van agrupadas por tema, no por número: `RN-INV-112`…`114` están en los grupos
+> *Envase en servicio* y *Estaciones y turno de estación*.
+
 ### Existencias y movimientos
 
 - `RN-INV-001` — La existencia de un insumo en una bodega es siempre el resultado de sus movimientos confirmados. No se edita directamente.
@@ -618,7 +626,7 @@ cargo de la estación de destino.
 > que realmente tengo y el costo quede actualizado.
 
 - `CA-1` — Dado un insumo con stock 10 a CPP $20.000 COP, cuando registro entrada de 10 unidades a $30.000 COP, entonces el stock queda en 20 y el CPP en $25.000 COP.
-- `CA-2` — Dado un insumo con unidad base *ml* y unidad de compra *botella (750 ml)*, cuando registro entrada de 2 botellas, entonces el stock aumenta en 1.500 ml.
+- `CA-2` — Dado un insumo con unidad base *ml* y empaque *Botella 750 (750 ml)*, cuando registro entrada de 2 botellas, entonces el stock aumenta en 1.500 ml.
 - `CA-3` — Dado un insumo con control de lote, cuando intento confirmar una entrada sin lote ni vencimiento, entonces el sistema la rechaza indicando los campos faltantes.
 - `CA-4` *(rechazo)* — Dado que soy un usuario con rol Mesero, cuando intento registrar una entrada, entonces el sistema me lo niega por falta de permiso.
 
@@ -810,7 +818,7 @@ cargo de la estación de destino.
 | Estaciones | ◄ entra | `kds`, `pos` | Identificador y nombre de las estaciones activas de la sede | Cada bodega de venta opera con su estación por defecto (`RN-INV-113`) |
 | Recepción de mercancía | ◄ entra | `compras` | Insumo, cantidad, unidad, costo, proveedor, lote, referencia | Entrada manual con costo digitado |
 | Identidad de productos | ◄ entra | `catalogo` | Producto vendible y sus modificadores | Inventario declara localmente los productos a los que asocia recetas |
-| Sedes y bodegas activas | ◄ entra | `tenancy` | Sedes del tenant | No aplica: módulo de plataforma obligatorio |
+| Sedes activas | ◄ entra | `tenancy` | Sedes del tenant | No aplica: módulo de plataforma obligatorio |
 | Usuarios y permisos | ◄ entra | `iam` | Identidad y rol del responsable | No aplica: módulo de plataforma obligatorio |
 | Existencia de un insumo | ► sale | cualquiera | Cantidad y costo en una bodega y fecha | — |
 | Disponibilidad de un producto | ► sale | `pos`, `pedidos-qr`, `catalogo` | Cuántas unidades alcanzan los insumos de su receta | — |
@@ -864,9 +872,11 @@ cargo de la estación de destino.
 | Configurar mínimos y umbrales | ✔ | ✔ | — | — | — | — | — |
 | Configurar tipo de control, verificación, tolerancia y estaciones | ✔ | ✔ | — | — | — | — | — |
 
-> **Provisional:** quién abre, finaliza y hace cierre en la estación ("Jefe estación") se alinea
-> con el rol *Estación* de [`05-actores-y-roles`](../05-actores-y-roles.md), que hoy no tiene
-> permisos de inventario. Pendiente de alinear ambas matrices.
+> **Provisional:** esta matriz es anterior a
+> [`ADR-0006`](../decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md). Se reemplaza por el
+> catálogo de permisos `PRM-INV-nnn` y los perfiles sugeridos (`PA-INV-016`). Hasta entonces, la
+> columna "Jefe estación" no corresponde a ningún rol de
+> [`05-actores-y-roles`](../05-actores-y-roles.md).
 
 ---
 
@@ -956,6 +966,10 @@ cargo de la estación de destino.
 - `PA-INV-007` — ¿Se necesita inventario de envases retornables y su control de devolución? Relevante en Colombia para cerveza y gaseosa en vidrio.
 - `PA-INV-008` — ¿Quién define las recetas en la práctica: el administrador o el chef/bartender? Si es el segundo, hace falta un flujo de propuesta y aprobación.
 - `PA-INV-009` — ¿El conteo físico se hace con un dispositivo móvil en la bodega? Cambia la experiencia, no las reglas. Con verificación `peso` implica báscula conectada o digitación manual.
+- `PA-INV-013` — Una merma sobre el umbral queda en `borrador` (`HU-INV-003`, `CA-3`) y un borrador solo lo ve quien lo creó (§6.1): quien debe autorizarla nunca la ve. *Propuesta:* un estado `pendiente de autorización` y autorización en el momento (`RN-ROL-004`); mismo patrón para el cierre de conteo (`RN-INV-032`) y la orden de producción.
+- `PA-INV-014` — La cortesía, ¿es merma o salida? El [glosario](../04-glosario.md) la lista como merma; 5.8 la tiene como salida. *Propuesta:* salida, y evaluar si el umbral de autorización cubre también las salidas por cortesía.
+- `PA-INV-015` — La **maduración** quedó sin ubicar al retirar de §15 la fila de producción compleja. ¿Es una orden de producción de larga duración, donde la merma es la pérdida de peso, o queda fuera de alcance?
+- `PA-INV-016` — **Catálogo de permisos de Inventario** (`PRM-INV-nnn`) y perfiles sugeridos, según [`ADR-0006`](../decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md). Reemplaza §12. *Propuestas a retomar:* un solo actor *Cocina / Barra* en §3, alineado con `05`; el perfil sugerido de Estación opera su estación siempre en cantidades, sin costos; el de Supervisor autoriza mermas y reaperturas y ve el importe de lo que autoriza; el de Compras queda en solo lectura; se agrega *Solo lectura / Contador*. Depende de `PA-ACT-007`…`014`.
 
 ## 17. Checklist de cierre
 
@@ -966,8 +980,8 @@ cargo de la estación de destino.
 - [x] Todos los datos están atados a tenant y a sede
 - [x] No hay tasas, impuestos, formatos legales ni festivos dentro del módulo
 - [x] Todos los importes llevan moneda
-- [x] Todo término nuevo está en el glosario
-- [x] Toda historia tiene al menos un criterio de rechazo
-- [ ] **No quedan preguntas abiertas** ← 3 pendientes (`PA-INV-007`, `008`, `009`)
+- [ ] Todo término nuevo está en el glosario ← falta *día de operación* (`RN-INV-098`), todavía sin definir
+- [ ] Toda historia tiene al menos un criterio de rechazo ← faltan en `HU-INV-005` y `HU-INV-008`
+- [ ] **No quedan preguntas abiertas** ← 7 pendientes (`PA-INV-007`…`009`, `013`…`016`)
 - [x] La ficha se entiende sin abrir la ficha de otro módulo
 - [ ] **Revisada y aprobada por Jorge**

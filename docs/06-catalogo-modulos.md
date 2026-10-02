@@ -1,6 +1,6 @@
 # Catálogo de módulos
 
-> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-09-14
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-10-02
 
 Todos los módulos de Barscode. Cada uno cumple el [Principio 1](03-principios.md): funciona
 solo, se vende solo, se define solo.
@@ -132,10 +132,13 @@ juntos — ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md)
 está terminado cuando pasa su checklist de cierre, **con cero preguntas abiertas**
 (`RN-ARQ-006`).
 
+> Este es el **único** lugar donde viven la cola y el estado de cada módulo. Los demás
+> documentos enlazan aquí en lugar de repetirlo.
+
 El orden también importa por otra razón: definir un módulo aclara el vocabulario de los
 siguientes.
 
-1. **`inventario` — 🟡 EN CURSO.** Es el módulo con más reglas, el que mejor prueba el principio de autonomía y el que fija el vocabulario central. Faltan 3 preguntas abiertas por cerrar.
+1. **`inventario` — 🟡 EN CURSO.** Es el módulo con más reglas, el que mejor prueba el principio de autonomía y el que fija el vocabulario central. Sus preguntas abiertas están en la §16 de la ficha.
 2. `catalogo` — define producto, receta y precio; desbloquea POS y pedidos-qr.
 3. `salon-mesas` — define zona, mesa y QR; desbloquea pedidos-qr.
 4. `pos` — el corazón de la operación.

@@ -1,6 +1,6 @@
 # Glosario
 
-> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-09-14
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-10-02
 
 Vocabulario único del proyecto. **Si un término está aquí, se usa así en todo el KB, en la
 interfaz y en el código.** Si aparece un sinónimo, se corrige.
@@ -20,6 +20,10 @@ turnos y Gamecenter viven en una sede. *Sinónimos prohibidos: local, sucursal, 
 
 **Módulo** — Unidad funcional autónoma del producto (Inventario, POS, Gamecenter…). Ver
 [Principio 1](03-principios.md).
+
+**Módulo habilitado** — Módulo que el plan de un tenant incluye y que ese tenant puede usar.
+Barscode es un SaaS: nada se instala en el negocio. Donde el KB dice que un módulo está
+"instalado" o "presente", significa habilitado.
 
 **Artefacto de país** — Implementación de las reglas legales, fiscales y culturales de un país
 (tributos, documento fiscal, moneda, festivos, medios de pago). Sustituible sin tocar módulos.
@@ -65,9 +69,10 @@ rankings y torneos entre quienes están en el local.
 ## Carta y producto
 
 **Insumo** — Cosa que se compra, se almacena y se consume. Vive en Inventario. Tiene unidad
-de medida y costo. Ejemplo: *botella de ron 750 ml*.
+de medida y costo. Ejemplo: *ron añejo*, que se lleva en ml y se compra en botellas de 750 ml
+(la botella es un **empaque**, no el insumo).
 
-**Producto** — Cosa que se vende al cliente. Vive en Catálogo. Tiene precio. Ejemplo:
+**Producto (producto vendible)** — Cosa que se vende al cliente. Vive en Catálogo. Tiene precio. Ejemplo:
 *Cuba Libre*. Un producto puede corresponder 1:1 a un insumo (una cerveza en botella) o
 consumir varios (un coctel).
 
@@ -119,9 +124,15 @@ sistema dice que debería haber.
 **Bodega** — Lugar de almacenamiento dentro de una sede: bodega principal, barra, nevera.
 El stock siempre es *de un insumo en una bodega*.
 
+**Bodega de venta** — Bodega de la que descuentan las ventas. Tiene una estación por defecto
+que consume de ella.
+
 **Ámbito de un insumo** — `global` (definido en el tenant, disponible en todas las sedes) o
 `local` (propio de una sede). Compartir la ficha del insumo **no** significa compartir el
 stock: las existencias y los costos son siempre por sede y bodega.
+
+**Unidad base** — Unidad en la que se lleva la existencia de un insumo: ml, g o unidad.
+Determina su dimensión. Todo insumo tiene exactamente una.
 
 **Dimensión** — Volumen, masa o conteo. Cada insumo vive en una sola. **No existe conversión
 entre dimensiones**: no hay densidad ni factor ml↔g.
@@ -156,8 +167,17 @@ del siguiente. No se atribuye a ninguno de los dos.
 **Nota de venta tardía** — Registro de que unas ventas llegaron después de una medición y
 explican parte de su diferencia. La existencia no cambia.
 
+**Medición** — Registro de cuánto contiene realmente un envase en servicio: en un cierre, una
+apertura, un conteo o al finalizarlo. Toda medición calcula una diferencia de envase.
+
+**Nota de corrección** — Registro que liga como un mismo error dos diferencias de mediciones que
+ya no pueden reabrirse. No genera movimientos; los reportes las muestran compensadas.
+
 **Porción de referencia** — Cantidad que representa una porción de un insumo (un trago de 50 ml).
 Sirve para mostrar porciones restantes y la venta perdida.
+
+**Venta perdida** — Diferencia de envase expresada en dinero de venta: diferencia ÷ porción de
+referencia × precio de carta. Solo se muestra si Catálogo está habilitado.
 
 **Orden de producción** — Documento que transforma unos insumos en otro insumo distinto:
 almíbar, salsa madre, infusión, despiece. El insumo producido entra con costo real derivado,
@@ -168,14 +188,30 @@ no estimado.
 **Movimiento de inventario** — Todo hecho que cambia la existencia: entrada, salida, ajuste,
 traslado, merma. Es la única forma en que el stock cambia.
 
+**Ajuste** — Movimiento que corrige la existencia cuando la causa se desconoce o hubo un error
+de registro: diferencia de conteo, diferencia de envase, corrección de registro. No es merma.
+
+**Traslado** — Paso de insumo de una bodega a otra de la misma sede, en un solo movimiento.
+Entre sedes no hay traslado: es salida en una y entrada en otra.
+
 **Merma** — Pérdida de insumo sin venta: rotura, vencimiento, derrame, cortesía, robo.
 Siempre lleva motivo y responsable.
 
 **Conteo físico** — Verificación manual de existencias contra lo que dice el sistema.
 Genera ajustes.
 
+**Lote** — Identificación de una entrada de un insumo, con su fecha de vencimiento. Solo lo
+llevan los insumos que lo exigen.
+
 **Costo promedio ponderado** — Método de valoración del inventario. Ver
 [`modulos/inventario.md`](modulos/inventario.md).
+
+**Kardex** — Historial cronológico de los movimientos de un insumo en una bodega, con saldo y
+costo después de cada uno. Muestra también los eventos de envase (abrir, prestar), que no
+cambian la existencia.
+
+**Valorización** — Valor del inventario a una fecha: las existencias por su costo promedio, por
+sede y bodega.
 
 ---
 
@@ -184,7 +220,14 @@ Genera ajustes.
 **Staff** — Cualquier persona que trabaja para el tenant y usa Barscode: dueño,
 administrador, mesero, cajero, cocina, bodeguero.
 
-**Rol** — Conjunto de permisos asignable a un miembro del staff **en una sede**.
+**Rol** — Conjunto de permisos asignable a un miembro del staff **en una sede**. *En revisión:*
+[`ADR-0006`](decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md) lo reemplaza por **perfil**.
+
+**Permiso** — Acceso a una función concreta de un módulo, con código propio (`PRM-INV-001`).
+El catálogo de permisos lo define Barscode; un negocio no crea permisos.
+
+**Perfil** — Conjunto de permisos que arma el negocio. Puede ser `global` (del tenant) o `local`
+(de una sede) y se asigna a un miembro del staff en una sede. Un usuario puede tener varios.
 
 ---
 

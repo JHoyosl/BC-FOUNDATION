@@ -50,6 +50,9 @@ inventario → catalogo → salon-mesas → pos → caja → pedidos-qr → kds
            → compras, schedule, reportes, fidelizacion, reservas, notificaciones
 ```
 
+> Foto del día de la decisión. La cola vigente vive en
+> [`06-catalogo-modulos.md`](../06-catalogo-modulos.md).
+
 ## Consecuencias
 
 **A favor**

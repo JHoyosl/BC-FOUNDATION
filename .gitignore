@@ -12,6 +12,7 @@ desktop.ini
 # Temporales y borradores locales
 /tmp/
 /borradores/
+/_work/
 *.tmp
 *.bak
 

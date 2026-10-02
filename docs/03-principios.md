@@ -1,6 +1,6 @@
 # Principios de arquitectura funcional
 
-> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-09-15
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-10-02
 
 Tres reglas gobiernan todo el diseño de Barscode. Cualquier definición de módulo que las
 contradiga está mal y se corrige. Cada una tiene su ADR:
@@ -40,7 +40,8 @@ Cada ficha de módulo debe declarar un **contrato de autonomía** con cuatro pun
    si no lo están.
 4. **Expone.** Qué información y qué operaciones ofrece a quien quiera usarlas.
 
-Ejemplo, para Inventario:
+Ejemplo, para Inventario (resumen ilustrativo; el contrato vigente es el de
+[su ficha](modulos/inventario.md)):
 
 | | |
 |---|---|
@@ -95,14 +96,14 @@ Tenant (negocio / organización)
 
 - `RN-ARQ-010` — Todo dato de negocio pertenece a exactamente un tenant. No existe dato compartido entre tenants.
 - `RN-ARQ-011` — Todo dato operativo (stock, caja, turnos, pedidos) pertenece además a exactamente una sede.
-- `RN-ARQ-012` — Un usuario del staff pertenece a un tenant y tiene roles asignados por sede. Un mesero de la sede A no opera la sede B salvo asignación explícita.
+- `RN-ARQ-012` — Un usuario del staff pertenece a un tenant y tiene roles asignados por sede. Un mesero de la sede A no opera la sede B salvo asignación explícita. *(Con [`ADR-0006`](decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md), "rol" pasa a ser "perfil"; la asignación sigue siendo por sede.)*
 - `RN-ARQ-013` — Un cliente final **no** pertenece a un tenant: es un usuario de la plataforma que establece sesiones con sedes. Su cuenta (si la crea) es de Barscode, no del bar.
 - `RN-ARQ-014` — El plan contratado determina qué módulos están habilitados por tenant y, si aplica, por sede.
 - `RN-ARQ-015` — Toda pantalla y todo reporte debe dejar explícito a qué sede corresponde lo que muestra.
 
 ### Preguntas abiertas
 
-- `PA-ARQ-001` — ¿Los módulos se contratan por tenant o por sede? (Una cadena podría querer inventario solo en una sede.)
+- `PA-ARQ-001` — ¿Los módulos se contratan por tenant o por sede? (Una cadena podría querer inventario solo en una sede.) Relacionada con `PA-VIS-001` (unidad de cobro).
 - `PA-ARQ-002` — ¿La carta se define a nivel tenant con sobreescritura por sede, o cada sede define la suya? Afecta a `catalogo` y a `pos`.
 - `PA-ARQ-003` — ¿Existe un rol de "franquiciado" con visibilidad parcial entre sedes del mismo tenant?
 
@@ -168,7 +169,7 @@ que el artefacto de país implementa:
 ### Preguntas abiertas
 
 - `PA-ARQ-010` — ¿Barscode emite la factura electrónica directamente ante la DIAN o se integra con un proveedor tecnológico autorizado? Decisión de alto impacto en costo, riesgo y tiempos.
-- `PA-ARQ-011` — ¿Se incluye facturación electrónica o basta con comprobante de venta / tirilla? Muchos bares pequeños operan con documento equivalente.
+- `PA-ARQ-011` — ¿Se incluye facturación electrónica o basta con comprobante de venta / tirilla? Muchos bares pequeños operan con documento equivalente. *(Absorbe a `PA-ALC-003`, que era la misma pregunta.)*
 - `PA-ARQ-012` — ¿Régimen tributario del tenant (común, simple, no responsable de IVA) es configuración de tenant o de sede?
 - `PA-ARQ-013` — ¿El artefacto de país incluye también las reglas laborales del módulo `schedule`, o eso se aísla aparte?
 

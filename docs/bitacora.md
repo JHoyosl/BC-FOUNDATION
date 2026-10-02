@@ -193,3 +193,127 @@ También se cerró `PA-GLO-003` del glosario, que era la misma pregunta que `PA-
 Las 5 preguntas restantes de `inventario`: `PA-INV-007` (envases retornables),
 `PA-INV-008` (quién aprueba recetas), `PA-INV-009` (conteo con móvil),
 `PA-INV-011` y `PA-INV-012`. Al cerrarlas, revisión y aprobación 🟢.
+
+---
+
+## 2026-09-15 — Sesión 4: envases abiertos por estación y modelo de permisos
+
+> Registrada el 2026-10-02. La sesión quedó en pausa y sus notas vivían solo en `_work/`.
+
+### Punto de partida
+
+Revisión completa del KB (17 archivos). Diez inconsistencias: cuatro de fondo en `inventario`,
+dos entre documentos y cuatro mecánicas.
+
+### Correcciones mecánicas — commit `caf7576`
+
+- README: de 10 a 5 preguntas abiertas de `inventario`.
+- Visión §4.1: empaques sin densidad, lote por insumo, orden de producción.
+- Principios: `RN-ARQ-006` agregada a las reglas del Principio 1.
+- `inventario` §15: retirada la fila "Producción y transformación compleja".
+
+### Bloque A: envases abiertos — commit `589f497`
+
+La ficha tenía tres contradicciones. `peso` convertía gramos a mililitros restando la tara, algo
+prohibido por `RN-INV-046` y con error real en cada conteo. `RN-INV-052` (la venta siempre
+descuenta por receta) chocaba con `RN-INV-053` (`apertura` descuenta al abrir): doble descuento.
+Y con `nivel` o `peso` no había regla de cuándo se abre un envase ni de cuál sale cada venta.
+
+| Punto | Decisión |
+|---|---|
+| A.1 | Dos ajustes por insumo: **tipo de control** (`unidad`, `granel`, `envase abierto`) y **verificación** (`al finalizar`, `nivel`, `peso`). `apertura` desaparece. Con `peso`, el empaque declara peso vacío y lleno, y el contenido sale por proporción, sin densidad. |
+| A.2 | La botella abierta no es otro insumo. La existencia tiene envases cerrados (un número) y el **envase en servicio** (un registro con historia). Abrir no cambia existencia ni costo. Porción de referencia y venta perdida. |
+| A.3 | El envase abierto es de la **estación** que lo abrió, no de la bodega: uno por insumo y estación. **Turno de estación** con cierre y apertura; la diferencia entre turnos no se carga a ninguno. Sin cierre no se bloquea nada. |
+| A.4 | Venta sin envase en servicio: alerta de trazabilidad y ml pendientes para el próximo envase. El sistema no abre envases por su cuenta. |
+| A.5 | Venta tardía de un periodo ya medido: no cambia la existencia, reclasifica la diferencia por **fecha del hecho** y deja nota. Estaciones `por archivo` con diferencia pendiente de ventas. Archivo sin hora: conciliación por día y estación. Hora declarada tras un corte de red. |
+| A.6 | Se miden faltante y sobrante. Alerta de envase excedido. |
+| A.7 | La diferencia es un **ajuste**, no una merma, con motivo *diferencia de envase*. Tolerancia por insumo sobre el consumo del periodo medido. |
+| A.8 | El conteo físico cuenta envases cerrados. *Incluir abiertas* para auditoría. Línea por recontar si se abre un envase durante el conteo. |
+| A.9 | Reabrir una medición es anular con inversos y crear una versión nueva, hasta que cierre la medición siguiente. Después, nota de corrección. Nadie autoriza su propia reapertura. |
+
+Además: toda bodega de venta tiene una **estación por defecto**, y `inventario` reconoce las
+estaciones por su identificador, venga del módulo que venga (`RN-INV-112`, `113`). Un envase en
+servicio puede **prestarse** a otra estación, con medición opcional (`RN-INV-114`).
+
+### Preguntas cerradas
+
+| Id | Resolución |
+|---|---|
+| `PA-INV-010` | Revisada: tipo de control y verificación por insumo; el envase abierto pertenece a una estación. |
+| `PA-INV-011` | Las ventas tardías sí se aplican; si hubo una medición posterior, reclasifican su diferencia. |
+| `PA-INV-012` | Reemplazada por la tolerancia por insumo. |
+
+### Estado de `inventario`
+
+| | Antes | Ahora |
+|---|---|---|
+| Reglas de negocio | 69 | **114** (10 derogadas) |
+| Historias de usuario | 11 | **14** |
+| Entidades | 12 | **14** |
+| Preguntas abiertas | 5 | **3** |
+
+### Bloque B: permisos
+
+Al alinear los permisos de la ficha con `05-actores-y-roles`, Jorge replanteó el modelo:
+**permisos por módulo y perfiles a la medida**. El modelo base quedó aprobado y está en
+[`ADR-0006`](decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md). Cierra `PA-ACT-004`.
+
+Quedó presentado y sin respuesta cómo evoluciona el catálogo de permisos: `PA-ACT-007`…`014`.
+
+Sin empezar: la merma sobre umbral que nadie ve para autorizar (`PA-INV-013`), si la cortesía es
+merma o salida (`PA-INV-014`), la maduración (`PA-INV-015`) y el catálogo de permisos de
+Inventario (`PA-INV-016`).
+
+### Infraestructura
+
+- La sesión se hizo en la Mac: `/Users/jorgehoyos/dev/BC-FOUNDATION`.
+- El trabajo en curso se llevó en `_work/`, fuera de Git.
+
+---
+
+## 2026-10-02 — Sesión 5: fuente de la verdad, revisión del foundation y correcciones
+
+### Fuente de la verdad
+
+Una sola, con tres niveles: `docs/` en `main` es lo decidido; `_work/` son notas locales de la
+sesión en curso; el historial de chat nunca es fuente. Nada decidido vive solo en `_work/`.
+→ [`00-guia.md`](00-guia.md)
+
+En consecuencia se volcó al KB lo que solo estaba en `_work/`: `ADR-0006`, las preguntas
+`PA-ACT-007`…`014` y `PA-INV-013`…`016`, y la entrada de la Sesión 4 de esta bitácora.
+
+### Revisión completa del foundation
+
+→ [`revisiones/2026-10-02-foundation.md`](revisiones/2026-10-02-foundation.md)
+
+45 hallazgos: 8 estructurales, 16 de deriva entre documentos y 21 en la ficha de `inventario`.
+Incluye el reparto propuesto de las preguntas fundacionales y un plan de mejora en cinco etapas.
+
+### Correcciones mecánicas aplicadas
+
+Ninguna cambia una decisión.
+
+- **Un solo lugar para la cola y el estado de los módulos:** el catálogo. README, alcance y
+  `ADR-0005` enlazan en lugar de repetir. Desaparece el conteo desactualizado del alcance.
+- **Guía:** cabecera de estado; identificadores `PRM-`, `RES-` y `SUP-`; forma abreviada de los
+  criterios (`CA-2`); estados de los ADR; ejemplos tomados de la ficha real; sin la palabra
+  "fase"; sección nueva sobre la fuente de la verdad y `_work/`.
+- **Glosario:** 11 términos que la ficha usaba y faltaban; *módulo habilitado*; *permiso* y
+  *perfil*; ejemplo de insumo corregido.
+- **`inventario`:** `tenancy` e `iam` sin alternativa manual en §2; "sedes activas" en §10; el
+  kardex muestra eventos de envase; aclaración de los motivos de traslado; "empaque" en lugar de
+  "unidad de compra". En el checklist se desmarcaron dos casillas que no se cumplían.
+- **Preguntas:** `PA-ALC-003` fusionada con `PA-ARQ-011`.
+
+### Estado de `inventario`
+
+Las preguntas abiertas pasan de 3 a **7**. No son dudas nuevas: cuatro pendientes de la Sesión 4
+que solo estaban en `_work/`.
+
+### Qué sigue
+
+El plan está en la revisión. En orden:
+
+1. Decisiones transversales, empezando por `PA-ACT-007`…`014`, que desbloquean los permisos.
+2. Cerrar `inventario`: reglas faltantes, sus 7 preguntas, cobertura de historias, aprobación.
+3. Actualizar la plantilla antes de abrir `catalogo`.
