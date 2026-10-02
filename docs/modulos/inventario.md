@@ -830,6 +830,22 @@ cargo de la estación de destino.
 > **Nota:** ninguna de estas interfaces implica una decisión técnica. Describen qué
 > información cruza, no cómo.
 
+### 10.1 Lo que este módulo necesita de la plataforma
+
+| A quién | Qué necesita |
+|---|---|
+| `tenancy` | Las sedes activas del tenant. |
+| `tenancy` | Saber si `pos`, `compras`, `catalogo`, `kds`, `reportes` y `notificaciones` están habilitados, para elegir entre la vía automática y la manual. |
+| `tenancy` | Guardar configuración por tenant, por sede, por bodega y por estación (§14). |
+| `iam` | Usuario identificado y sus permisos en la sede y, para envases, en la estación. |
+| `iam` | Autorización por otra persona para mermas sobre umbral, cierres de conteo y reaperturas (`RN-INV-028`, `032`, `107`). |
+| `iam` | Un permiso con alcance de todo el tenant, para los insumos `global` (`RN-INV-043`). |
+| `iam` | Auditoría de movimientos, anulaciones y reaperturas (`RN-INV-003`, `103`). |
+| Artefacto de país | Lo descrito en §11. |
+| `notificaciones` | Entregar las alertas de stock y de envases. Sin él, se consultan dentro del módulo. |
+
+La misma lista está en [`07-plataforma-minima.md`](../07-plataforma-minima.md).
+
 ---
 
 ## 11. Dependencias de localización
@@ -977,11 +993,13 @@ cargo de la estación de destino.
 - [x] El contrato de autonomía declara los cuatro puntos
 - [x] El módulo hace algo útil si es lo único instalado
 - [x] Todo dato que consume tiene alternativa manual
+- [x] Lo que necesita de la plataforma está en 10.1 y en `07-plataforma-minima.md`
 - [x] Todos los datos están atados a tenant y a sede
 - [x] No hay tasas, impuestos, formatos legales ni festivos dentro del módulo
 - [x] Todos los importes llevan moneda
 - [ ] Todo término nuevo está en el glosario ← falta *día de operación* (`RN-INV-098`), todavía sin definir
 - [ ] Toda historia tiene al menos un criterio de rechazo ← faltan en `HU-INV-005` y `HU-INV-008`
+- [ ] Toda acción del módulo tiene su permiso, con código, en la sección 12 ← `PA-INV-016`
 - [ ] **No quedan preguntas abiertas** ← 7 pendientes (`PA-INV-007`…`009`, `013`…`016`)
 - [x] La ficha se entiende sin abrir la ficha de otro módulo
 - [ ] **Revisada y aprobada por Jorge**

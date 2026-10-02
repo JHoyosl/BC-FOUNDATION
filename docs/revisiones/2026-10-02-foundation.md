@@ -27,18 +27,18 @@ Los problemas no están en lo que ya se decidió, sino en tres frentes:
 
 Todos requieren decisión de Jorge.
 
-### E-1 · El primer módulo no es entregable sin plataforma ⏳
-`ADR-0005` afirma que "cada módulo terminado es entregable: se puede vender, probar y cobrar".
-Pero `tenancy`, `iam` y `localizacion-co` son obligatorios (`RN-ARQ-005`) y están en los puestos
-8–10 de la cola. `inventario` necesita tenant, sede, usuario, permisos y moneda para existir.
-**Propuesta:** un documento "plataforma mínima" con lo que los módulos ya exigen, alimentado por
-una sección nueva en la plantilla ("Lo que este módulo necesita de la plataforma"). La definición
-completa de la plataforma sigue en su puesto de la cola.
+### E-1 · El primer módulo no es entregable sin plataforma ✅
+`ADR-0005` afirmaba que "cada módulo terminado es entregable", pero `tenancy`, `iam` y
+`localizacion-co` son obligatorios y están en los puestos 8–10 de la cola.
+**Resuelto** por [`ADR-0008`](../decisiones/ADR-0008-primero-el-kb.md): el orden de construcción
+lo decide el plan de desarrollo, no la cola. Lo que cada módulo necesita de la plataforma se
+acumula en [`07-plataforma-minima.md`](../07-plataforma-minima.md), desde la sección 10.1 de
+cada ficha.
 
-### E-2 · No está escrito cuándo empieza el desarrollo ⏳
-`02-alcance` §2: esta etapa produce documentación de "todos los módulos del catálogo".
-`ADR-0005`: "se define **y se construye** un módulo a la vez". Son dos planes distintos: 20 fichas
-y luego código, o ficha–código–ficha–código. **Propuesta:** decidirlo y escribirlo en `ADR-0005`.
+### E-2 · No está escrito cuándo empieza el desarrollo ✅
+El alcance decía "todos los módulos" y `ADR-0005` decía "se define y se construye un módulo a
+la vez". **Resuelto** por `ADR-0008`: primero se define el KB y con él se crea el plan de
+desarrollo. La cola pasó a llamarse *cola de definición*.
 
 ### E-3 · El modelo de permisos aprobado no estaba en el KB 🟡
 El 2026-09-15 se aprobó el modelo base de permisos por módulo y perfiles; vivía solo en `_work/`.
@@ -59,7 +59,7 @@ Además, `gamecenter`, `social` y `pagos` se declaran "activables con un QR" sin
 `pedidos-qr`, pero el QR lo genera `salon-mesas` y la sesión de mesa la abre `pedidos-qr`. Nadie
 es dueño del QR y la sesión cuando esos dos no están. `identidad-cliente` tampoco funciona sola.
 **Propuesta:** una sola lista de plataforma; decidir si QR + sesión + identidad del cliente son
-plataforma del lado cliente.
+plataforma del lado cliente. *Registradas como `PA-PLT-001` y `PA-PLT-002`.*
 
 ### E-5 · La fundación no puede aprobarse nunca con la regla actual ⏳
 Los documentos fundacionales tienen decenas de preguntas abiertas y la regla dice que un
@@ -233,8 +233,8 @@ Las decide Jorge. Cada una sale como ADR o como cambio en `03-principios`.
 | # | Decisión | Sale como |
 |---|---|---|
 | 1 | ✅ Evolución del catálogo de permisos, árbol, validación e identidad entre negocios (E-3) | `ADR-0006` ampliada + `ADR-0007` |
-| 2 | Cuándo se construye y qué es la plataforma mínima (E-1, E-2) | Revisión de `ADR-0005` |
-| 3 | Lista única de plataforma; dueño del QR, la sesión y la identidad del cliente (E-4) | ADR nuevo + catálogo |
+| 2 | ✅ Primero el KB, después el plan de desarrollo; documento de plataforma mínima (E-1, E-2) | `ADR-0008` + `07-plataforma-minima` |
+| 3 | Lista única de plataforma; dueño del QR, la sesión y la identidad del cliente (E-4, `PA-PLT-001`, `PA-PLT-002`) | ADR nuevo + catálogo |
 | 4 | Estado "diferida" y registro único de preguntas (E-5, §6) | Guía |
 | 5 | Patrones comunes y "día de operación" (E-6) | `03-principios` + glosario |
 | 6 | Quinto punto del contrato: transición (E-7) | `03-principios` + plantilla |

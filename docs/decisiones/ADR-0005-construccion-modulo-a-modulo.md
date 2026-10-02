@@ -1,6 +1,9 @@
 # ADR-0005 — Se construye módulo a módulo, no por fases
 
 > **Estado:** Aceptada · **Fecha:** 2026-09-14 · **Decide:** Jorge Hoyos
+> **Precisada por [`ADR-0008`](ADR-0008-primero-el-kb.md)** (2026-10-02): la cola ordena la
+> **definición** de los módulos. Cuándo y en qué orden se construyen lo decide el plan de
+> desarrollo, que se crea con el KB ya definido.
 
 ## Contexto
 

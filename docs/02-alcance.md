@@ -1,4 +1,4 @@
-# Alcance y cola de construcción
+# Alcance y cola de definición
 
 > **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-10-02
 
@@ -35,12 +35,15 @@ Está fuera, deliberadamente:
 - Estimaciones de esfuerzo y cronograma de desarrollo.
 - Migración del MVP existente.
 
-Esas cosas se abren **después**, módulo por módulo, una vez su definición funcional esté 🟢 aprobada.
+Esas cosas se abren **después**, con el plan de desarrollo que se crea a partir del KB ya
+definido. Ver [`ADR-0008`](decisiones/ADR-0008-primero-el-kb.md).
 
-## 3. Cola de construcción
+## 3. Cola de definición
 
-> **No hay fases.** Se define y se construye **un módulo a la vez, hasta terminarlo**, y se
-> pasa al siguiente. Ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md).
+> **No hay fases.** Se define **un módulo a la vez, hasta terminarlo**, y se pasa al siguiente
+> ([`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md)). La cola ordena la definición, no
+> la construcción: el orden en que se construye lo decide el plan de desarrollo
+> ([`ADR-0008`](decisiones/ADR-0008-primero-el-kb.md)).
 
 Un módulo está terminado cuando pasa su checklist de cierre, incluyendo **cero preguntas
 abiertas** (`RN-ARQ-006`).
@@ -48,7 +51,7 @@ abiertas** (`RN-ARQ-006`).
 ### Dónde vive la cola
 
 La cola vigente, con la posición y el estado de cada módulo, vive en un solo sitio: el
-[catálogo de módulos](06-catalogo-modulos.md#cola-de-construcción). Las preguntas abiertas del
+[catálogo de módulos](06-catalogo-modulos.md#cola-de-definición). Las preguntas abiertas del
 módulo en curso viven en su ficha. Este documento no repite ninguna de las dos cosas.
 
 El orden es **reordenable**. Al terminar cada módulo se revisa cuál sigue, con dos
@@ -59,7 +62,8 @@ criterios: *(a)* ¿vale por sí solo? *(b)* ¿su vocabulario desbloquea a los si
 `tenancy`, `iam` y `localizacion-co` son transversales y obligatorios, pero definirlos
 primero obligaría a **adivinar** qué permisos, qué configuración y qué reglas de país
 necesitan los módulos funcionales. Así que cada módulo documenta lo que **necesita** de la
-plataforma, y la plataforma se define después con esa lista en mano.
+plataforma, y la plataforma se define después con esa lista en mano. La lista se acumula en
+[`07-plataforma-minima.md`](07-plataforma-minima.md).
 
 Mientras tanto, los módulos asumen lo mínimo: que existe un tenant, que existe una sede,
 que el usuario está identificado y que hay un artefacto de país al que preguntarle.

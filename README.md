@@ -21,7 +21,8 @@ escrito antes de escribirlo en código.
 | [`docs/03-principios.md`](docs/03-principios.md) | Las tres reglas que gobiernan todo el diseño: modularidad, multi-tenant, localización. |
 | [`docs/04-glosario.md`](docs/04-glosario.md) | Vocabulario único del proyecto. Si un término no está aquí, no se usa. |
 | [`docs/05-actores-y-roles.md`](docs/05-actores-y-roles.md) | Quién usa el sistema y qué puede hacer cada quien. |
-| [`docs/06-catalogo-modulos.md`](docs/06-catalogo-modulos.md) | Los 20 módulos del producto, su prueba de autonomía, la cola de construcción y el estado de cada uno. |
+| [`docs/06-catalogo-modulos.md`](docs/06-catalogo-modulos.md) | Los 20 módulos del producto, su prueba de autonomía, la cola de definición y el estado de cada uno. |
+| [`docs/07-plataforma-minima.md`](docs/07-plataforma-minima.md) | Lo que todo módulo da por sentado de la plataforma, y lo que cada uno le pide. |
 | [`docs/modulos/`](docs/modulos/) | Una ficha funcional completa por módulo. |
 | [`docs/decisiones/`](docs/decisiones/) | ADR: cada decisión estructural, con fecha y motivo. |
 | [`docs/bitacora.md`](docs/bitacora.md) | Qué se definió, cuándo, y qué sigue. |
@@ -34,6 +35,8 @@ escrito antes de escribirlo en código.
 **Etapa: definición funcional.** No se escribe código ni se toman decisiones técnicas
 (lenguajes, frameworks, base de datos, despliegue). Se define **un módulo a la vez, hasta
 terminarlo** — ver [`ADR-0005`](docs/decisiones/ADR-0005-construccion-modulo-a-modulo.md).
+Primero se define todo el KB; con él se crea el plan de desarrollo — ver
+[`ADR-0008`](docs/decisiones/ADR-0008-primero-el-kb.md).
 
 **Módulo en curso: [`inventario`](docs/modulos/inventario.md).** Sus preguntas abiertas están en la
 §16 de la ficha. La cola y el estado de los demás módulos viven en el

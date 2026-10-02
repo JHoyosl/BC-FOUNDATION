@@ -66,6 +66,12 @@ viaja.
 | Interfaz | Dirección | Con quién | Qué información | Si el otro no existe |
 |---|---|---|---|---|
 
+### 10.1 Lo que este módulo necesita de la plataforma
+
+Qué le pide a `tenancy`, a `iam`, al artefacto de país y a `notificaciones`. Es la lista con la
+que se definirá la plataforma: se copia además a
+[`07-plataforma-minima.md`](../07-plataforma-minima.md).
+
 ## 11. Dependencias de localización
 
 Qué de este módulo depende del artefacto de país (`RN-ARQ-020`). Si nada depende, decirlo
@@ -111,6 +117,7 @@ Numeradas `PA-<MOD>-nnn`. **Mientras quede una, el módulo no puede estar 🟢.*
 - [ ] El contrato de autonomía declara los cuatro puntos
 - [ ] El módulo hace algo útil si es lo único instalado
 - [ ] Todo dato que consume tiene alternativa manual
+- [ ] Lo que necesita de la plataforma está en 10.1 y en `07-plataforma-minima.md`
 - [ ] Todos los datos están atados a tenant y, si son operativos, a sede
 - [ ] No hay tasas, impuestos, formatos legales ni festivos escritos dentro del módulo
 - [ ] Todos los importes llevan moneda

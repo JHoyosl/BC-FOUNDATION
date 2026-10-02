@@ -19,8 +19,8 @@ con qué estados y qué límites.
 **No es:** diseño técnico. Aquí no se decide lenguaje, framework, base de datos,
 infraestructura ni esquema de tablas. Cuando el texto menciona una "interfaz" entre módulos,
 se refiere al **contrato funcional** (qué información pide uno y qué le responde el otro),
-no a un endpoint HTTP. La capa técnica de cada módulo se abrirá en `docs/tecnico/` cuando su
-definición funcional esté 🟢.
+no a un endpoint HTTP. La capa técnica se abrirá en `docs/tecnico/` con el plan de
+desarrollo, una vez definido el KB ([`ADR-0008`](decisiones/ADR-0008-primero-el-kb.md)).
 
 ## Convenciones
 
@@ -60,7 +60,7 @@ se decide) o `Reemplazada por ADR-nnnn`. El README y la bitácora no llevan cabe
 | Supuesto | `SUP-<nnn>` | `SUP-001` |
 
 `<MOD>` es la abreviatura del módulo (`INV`). En los documentos fundacionales es la del
-documento o del tema: `GUIA`, `VIS`, `ALC`, `ARQ`, `GLO`, `ACT`, `ROL`, `CAT`.
+documento o del tema: `GUIA`, `VIS`, `ALC`, `ARQ`, `GLO`, `ACT`, `ROL`, `CAT`, `PLT`.
 
 Dentro de su historia, un criterio se escribe abreviado (`CA-2`). Desde fuera de la historia se
 cita con el identificador completo (`CA-HU-INV-003-2`).

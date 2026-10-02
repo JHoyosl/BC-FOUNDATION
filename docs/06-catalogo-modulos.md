@@ -14,6 +14,9 @@ solo, se vende solo, se define solo.
 Excepción al principio de autonomía (`RN-ARQ-005`): estos módulos son la base de cualquier
 instalación.
 
+Lo que los demás módulos dan por sentado de esta capa, antes de que sus fichas existan, está en
+[`07-plataforma-minima.md`](07-plataforma-minima.md).
+
 | Id | Módulo | Qué hace | Cola | Estado | Ficha |
 |---|---|---|---|---|---|
 | `tenancy` | Tenants y sedes | Alta de negocios, sedes, plan contratado, habilitación de módulos, suscripción. | 8 | ⚪ | — |
@@ -125,10 +128,12 @@ Prueba que todo módulo debe pasar: **¿qué hace si es lo único instalado?**
 
 ---
 
-## Cola de construcción
+## Cola de definición
 
-**Un módulo a la vez, hasta terminarlo.** No hay fases y no hay módulos que se construyan
-juntos — ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md). Un módulo
+**Un módulo a la vez, hasta terminarlo.** No hay fases y no hay módulos que se definan
+juntos — ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md). Esta cola ordena la
+**definición**; el orden de construcción lo decide el plan de desarrollo, que se crea con el KB
+ya definido ([`ADR-0008`](decisiones/ADR-0008-primero-el-kb.md)). Un módulo
 está terminado cuando pasa su checklist de cierre, **con cero preguntas abiertas**
 (`RN-ARQ-006`).
 
@@ -145,7 +150,7 @@ siguientes.
 5. `caja` — cierra el ciclo del dinero.
 6. `pedidos-qr` — la experiencia que diferencia al producto.
 7. `kds`
-8. `tenancy` + `iam` + `localizacion-co` — se definen con precisión una vez se sabe qué necesitan los módulos anteriores.
+8. `tenancy` + `iam` + `localizacion-co` — se definen con precisión una vez se sabe qué necesitan los módulos anteriores. Esa lista se acumula en [`07-plataforma-minima.md`](07-plataforma-minima.md).
 9. `gamecenter` + `social` + `identidad-cliente` + `pagos`
 10. `compras`, `schedule`, `reportes`, `fidelizacion`, `reservas`, `notificaciones`
 
