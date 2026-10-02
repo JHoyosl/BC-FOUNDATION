@@ -1,10 +1,15 @@
 # Actores y roles
 
-> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-09-14
+> **Estado:** 🟡 Borrador · **Dueño:** Jorge Hoyos · **Actualizado:** 2026-10-02
 
 Los **actores** son quienes interactúan con Barscode. Los **roles** son los conjuntos de
 permisos que se asignan al staff. Un actor puede tener varios roles; un rol se asigna
 siempre **en una sede** (`RN-ARQ-012`).
+
+> **En revisión.** [`ADR-0006`](decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md) (2026-09-15) reemplaza los roles fijos por **permisos por
+> módulo y perfiles a la medida**. Las secciones 2 y 3 describen el modelo anterior y se
+> reescriben como perfiles sugeridos cuando se cierren `PA-ACT-007`…`014`. Hasta entonces sirven
+> como punto de partida de esos perfiles, no como regla.
 
 ---
 
@@ -101,6 +106,24 @@ Lectura: **C** crea · **L** lee · **M** modifica · **—** sin acceso
 - `PA-ACT-001` — ¿Existe la figura de "mesero" separada del "cajero" en el segmento objetivo, o en bares pequeños la misma persona hace todo? Si es lo segundo, el diseño de roles debe favorecer un rol combinado.
 - `PA-ACT-002` — ¿El mesero puede cobrar? En Colombia es común que el mesero cobre en la mesa. Si es así, el rol Mesero necesita permiso de cobro condicionado.
 - `PA-ACT-003` — ¿Bajo qué condiciones el operador Barscode puede ver datos de un tenant (soporte)? Necesita política explícita y registro.
-- `PA-ACT-004` — ¿Los roles son fijos o el tenant puede crear roles propios con permisos a la medida? Cambia mucho el módulo `iam`.
+- ~~`PA-ACT-004`~~ — **Resuelta** (2026-09-15): a la medida. El negocio arma perfiles con los permisos de cada módulo. Ver [`ADR-0006`](decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md).
 - `PA-ACT-005` — ¿Cómo se autentica el staff en una terminal compartida: PIN, tarjeta, usuario y contraseña?
 - `PA-ACT-006` — ¿El "anfitrión de mesa" es un concepto real del producto (con poderes sobre la cuenta del grupo) o solo una forma de hablar? Afecta `pedidos-qr` y `pagos`.
+
+### Evolución del catálogo de permisos
+
+Derivadas de [`ADR-0006`](decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md). Presentadas el 2026-09-15 con su recomendación; esperan
+respuesta.
+
+Base propuesta para todas: un permiso es **sensible** si expone importes o costos, autoriza,
+anula, reabre, configura o administra usuarios y perfiles. Tener varios perfiles **suma**
+permisos; no existen permisos que quiten.
+
+- `PA-ACT-007` — **Permiso nuevo por una función nueva** (ej. "Prestar envase"): ¿quién lo recibe? *Propuesta:* solo el Propietario. Los perfiles propios no cambian; los sugeridos vinculados lo reciben si no es sensible; el administrador recibe aviso.
+- `PA-ACT-008` — **Permiso que se divide** (ej. "Registrar salida / traslado" pasa a ser dos). *Propuesta:* el nuevo declara de cuál nace y todo perfil que tenía el original recibe ambos, aunque sea sensible. Nadie pierde acceso por una versión.
+- `PA-ACT-009` — **Retirar, renombrar o fusionar.** *Propuesta:* el código nunca se reutiliza; el retirado queda marcado con fecha y motivo y deja de operar; el nombre puede cambiar pero el significado de un código nunca se amplía; los permisos no se fusionan.
+- `PA-ACT-010` — **Dependencias entre permisos** (ej. "Autorizar merma sobre umbral" necesita ver el importe). *Propuesta:* el catálogo las declara y asignar un permiso agrega las suyas; si una versión agrega una dependencia, los perfiles la heredan; una dependencia nueva nunca puede ser sensible.
+- `PA-ACT-011` — **Módulo que se contrata o se quita.** *Propuesta:* al contratarlo aparecen su catálogo y sus perfiles sugeridos sin tocar los propios. Al quitarlo, sus permisos quedan en los perfiles pero no operan (`RN-ROL-006`) y vuelven igual al recontratar; el administrador ve esos perfiles "sin efecto".
+- `PA-ACT-012` — **Perfil sugerido que mejora.** *Propuesta:* dos modos. *Sugerido vinculado*: se actualiza con Barscode y no se edita; los cambios no sensibles se aplican solos y los sensibles esperan aceptación. *Propio*: copia editable que nunca cambia sola (salvo `PA-ACT-008` y `010`). Editar un sugerido es duplicarlo como propio.
+- `PA-ACT-013` — **Auditoría y avisos.** *Propuesta:* cada acción guarda el código de permiso y el perfil por el que se tuvo; los cambios a perfiles también se auditan; se puede responder "qué podía hacer Ana el 3 de marzo"; el administrador tiene una bandeja de novedades de permisos.
+- `PA-ACT-014` — **Registro en el KB.** *Propuesta:* la §12 de cada ficha pasa a ser el catálogo de permisos del módulo (código, nombre, qué permite, sensible, dependencias, origen, estado y fecha) más la matriz de perfiles sugeridos. Ninguna función se construye sin su código en la ficha.
