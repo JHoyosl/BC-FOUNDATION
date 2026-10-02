@@ -97,7 +97,7 @@ Cosas que Barscode **no** hace, escritas para que nadie las asuma:
 ## 7. Preguntas abiertas
 
 - ~~`PA-ALC-001`~~ — **Disuelta** (2026-09-14): no hay fases. Ver [`ADR-0005`](decisiones/ADR-0005-construccion-modulo-a-modulo.md).
-- `PA-ALC-002` — ¿Se exige operación sin conexión (offline)? **Resuelta para `inventario`** (2026-09-14): no tiene modo sin conexión (`RN-INV-067`). **Sigue abierta para `pos` y `kds`.** Del lado de inventario ya está resuelto qué pasa con las ventas que el POS registre sin red (`PA-INV-011`, cerrada 2026-09-15): se aplican al volver la conexión y, si hubo una medición posterior, reclasifican su diferencia sin cambiar la existencia.
+- `PA-ALC-002` — ¿Se exige operación sin conexión (offline)? **Resuelta para `inventario`** (2026-09-14): no tiene modo sin conexión (`RN-INV-067`). **Sigue abierta para `pos` y `kds`.** Del lado de inventario ya está resuelto qué pasa con las ventas que el POS registre sin red (`PA-INV-011`, cerrada 2026-09-15): se aplican al volver la conexión y, si hubo una medición posterior, reclasifican su diferencia sin cambiar la existencia. **Condición nueva** (2026-10-02): el servidor valida todo permiso (`RN-ROL-018`) y un POS sin red no puede consultarlo; al definir `pos` hay que decir con qué permisos opera sin conexión.
 - ~~`PA-ALC-003`~~ — **Fusionada** (2026-10-02) con `PA-ARQ-011` de [`03-principios.md`](03-principios.md): era la misma pregunta. Se resuelve al definir `localizacion-co`.
 - `PA-ALC-004` — ¿App móvil nativa o basta la web por QR? La web cubre el pedido; la app nativa es lo que habilita bien el Gamecenter. Se resuelve al definir `pedidos-qr`.
 - `PA-ALC-005` — ¿Hay una fecha objetivo o un compromiso externo que condicione el orden de la cola?

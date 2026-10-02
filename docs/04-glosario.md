@@ -220,14 +220,33 @@ sede y bodega.
 **Staff** — Cualquier persona que trabaja para el tenant y usa Barscode: dueño,
 administrador, mesero, cajero, cocina, bodeguero.
 
-**Rol** — Conjunto de permisos asignable a un miembro del staff **en una sede**. *En revisión:*
-[`ADR-0006`](decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md) lo reemplaza por **perfil**.
+**Usuario** — Identidad con la que una persona del staff entra a Barscode. Es de la persona:
+no pertenece a ningún tenant. Una persona tiene un solo usuario aunque trabaje en varios
+negocios. Ver [`ADR-0007`](decisiones/ADR-0007-un-usuario-varias-vinculaciones.md).
+
+**Vinculación** — Relación entre un usuario y un tenant para el que trabaja. La crea, la
+suspende y la termina el tenant. De ella cuelgan los perfiles de la persona en ese negocio. Un
+usuario puede tener varias, y ningún tenant ve las de los demás.
+
+**Rol** — *Término retirado.* Lo reemplaza **perfil** ([`ADR-0006`](decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md)).
 
 **Permiso** — Acceso a una función concreta de un módulo, con código propio (`PRM-INV-001`).
-El catálogo de permisos lo define Barscode; un negocio no crea permisos.
+Los permisos de un módulo forman un árbol: módulo, grupo y permiso. El catálogo lo define
+Barscode; un negocio no crea permisos.
+
+**Permiso sensible** — Permiso que expone importes o costos, autoriza, anula, reabre, configura
+o administra usuarios y perfiles. Nunca llega a un perfil sin que alguien del negocio lo acepte.
 
 **Perfil** — Conjunto de permisos que arma el negocio. Puede ser `global` (del tenant) o `local`
-(de una sede) y se asigna a un miembro del staff en una sede. Un usuario puede tener varios.
+(de una sede). Una persona puede tener varios, y sus permisos se suman.
+
+**Perfil sugerido** — Perfil que Barscode entrega como punto de partida. Se usa *vinculado* (se
+actualiza con Barscode y no se edita) o se duplica como *propio*.
+
+**Asignación** — Lo que le da permisos a una persona: su vinculación, un perfil, una sede y,
+si aplica, estaciones.
+
+**Propietario** — Quien tiene todos los permisos de un tenant. No es un perfil y no se edita.
 
 ---
 

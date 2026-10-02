@@ -305,6 +305,20 @@ Ninguna cambia una decisión.
   "unidad de compra". En el checklist se desmarcaron dos casillas que no se cumplían.
 - **Preguntas:** `PA-ALC-003` fusionada con `PA-ARQ-011`.
 
+### Decisiones: permisos e identidad del staff
+
+| ADR | Decisión |
+|---|---|
+| [`ADR-0006`](decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md) (ampliada) | El catálogo de permisos es un **árbol** (módulo → grupo → permiso); marcar un grupo es un atajo, no un comodín. El **servidor valida** toda operación, venga de donde venga. Quedan decididas las reglas de **evolución del catálogo**: permiso nuevo, división, retiro, dependencias, módulo que se quita, perfiles sugeridos, auditoría y registro en el KB. Nadie asigna un permiso que no tiene. |
+| [`ADR-0007`](decisiones/ADR-0007-un-usuario-varias-vinculaciones.md) | **Un usuario, varias vinculaciones.** Una persona tiene un solo usuario de Barscode y una vinculación con cada negocio donde trabaja; los permisos cuelgan de la vinculación y nunca se suman entre negocios. Deroga `RN-ARQ-012`. |
+
+Reglas nuevas: `RN-ROL-008`…`027` y `RN-ARQ-016`…`019`. Derogadas: `RN-ROL-001`…`006` y
+`RN-ARQ-012`. Cerradas: `PA-ACT-007`…`014`. Nueva: `PA-ARQ-004` (¿el usuario del staff y el
+cliente registrado son la misma cuenta?).
+
+`05-actores-y-roles` quedó reescrito: los roles fijos pasan a ser perfiles sugeridos. La
+plantilla de ficha pide ahora el árbol de permisos del módulo en su §12.
+
 ### Estado de `inventario`
 
 Las preguntas abiertas pasan de 3 a **7**. No son dudas nuevas: cuatro pendientes de la Sesión 4
@@ -314,6 +328,7 @@ que solo estaban en `_work/`.
 
 El plan está en la revisión. En orden:
 
-1. Decisiones transversales, empezando por `PA-ACT-007`…`014`, que desbloquean los permisos.
+1. Las demás decisiones transversales: cuándo se construye y qué es la plataforma mínima, el
+   límite de la capa plataforma, los patrones comunes y el vocabulario.
 2. Cerrar `inventario`: reglas faltantes, sus 7 preguntas, cobertura de historias, aprobación.
 3. Actualizar la plantilla antes de abrir `catalogo`.

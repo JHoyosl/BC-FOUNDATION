@@ -17,7 +17,7 @@ instalación.
 | Id | Módulo | Qué hace | Cola | Estado | Ficha |
 |---|---|---|---|---|---|
 | `tenancy` | Tenants y sedes | Alta de negocios, sedes, plan contratado, habilitación de módulos, suscripción. | 8 | ⚪ | — |
-| `iam` | Identidad y permisos | Usuarios del staff, autenticación, roles por sede, registro de auditoría. | 9 | ⚪ | — |
+| `iam` | Identidad y permisos | Usuarios del staff y sus vinculaciones, autenticación, perfiles y permisos por sede, registro de auditoría. | 9 | ⚪ | — |
 | `localizacion-co` | Artefacto Colombia | Implementa las interfaces de país: tributos, documento fiscal, moneda, medios de pago, festivos, reglas laborales. | 10 | ⚪ | — |
 | `notificaciones` | Avisos | Envío de avisos a staff y clientes (pedido listo, stock bajo, turno asignado). | 20 | ⚪ | — |
 

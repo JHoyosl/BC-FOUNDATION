@@ -607,7 +607,7 @@ cargo de la estación de destino.
 - `RN-INV-104` — Mientras no haya habido operación sobre esos envases o esa bodega después de la medición, la versión nueva puede volver a medir. Después, solo corrige el valor registrado.
 - `RN-INV-105` — Una medición puede reabrirse hasta que se cierre la siguiente medición del mismo alcance: el turno siguiente de la estación o, para un conteo, el siguiente conteo o cierre que mida esos insumos. Las diferencias que cambian quedan marcadas *recalculado por reapertura*.
 - `RN-INV-106` — Pasado ese límite no se reabre ni se registran movimientos: una *nota de corrección* liga las diferencias afectadas como un mismo error, y los reportes las muestran compensadas.
-- `RN-INV-107` — Reabrir exige motivo y un rol con permiso (Propietario, Administrador de sede o Supervisor). Quien hizo la medición no puede autorizar su propia reapertura, salvo el Propietario. Aplica `RN-ROL-004`.
+- `RN-INV-107` — Reabrir exige motivo y un rol con permiso (Propietario, Administrador de sede o Supervisor). Quien hizo la medición no puede autorizar su propia reapertura, salvo el Propietario. Aplica `RN-ROL-013`.
 - `RN-INV-108` — Si se reabre la finalización de un envase y la estación ya tiene otro en servicio del mismo insumo, el contenido corregido se suma al envase en servicio, con nota.
 
 ### Conteo físico y envases abiertos
@@ -966,10 +966,10 @@ cargo de la estación de destino.
 - `PA-INV-007` — ¿Se necesita inventario de envases retornables y su control de devolución? Relevante en Colombia para cerveza y gaseosa en vidrio.
 - `PA-INV-008` — ¿Quién define las recetas en la práctica: el administrador o el chef/bartender? Si es el segundo, hace falta un flujo de propuesta y aprobación.
 - `PA-INV-009` — ¿El conteo físico se hace con un dispositivo móvil en la bodega? Cambia la experiencia, no las reglas. Con verificación `peso` implica báscula conectada o digitación manual.
-- `PA-INV-013` — Una merma sobre el umbral queda en `borrador` (`HU-INV-003`, `CA-3`) y un borrador solo lo ve quien lo creó (§6.1): quien debe autorizarla nunca la ve. *Propuesta:* un estado `pendiente de autorización` y autorización en el momento (`RN-ROL-004`); mismo patrón para el cierre de conteo (`RN-INV-032`) y la orden de producción.
+- `PA-INV-013` — Una merma sobre el umbral queda en `borrador` (`HU-INV-003`, `CA-3`) y un borrador solo lo ve quien lo creó (§6.1): quien debe autorizarla nunca la ve. *Propuesta:* un estado `pendiente de autorización` y autorización en el momento (`RN-ROL-013`); mismo patrón para el cierre de conteo (`RN-INV-032`) y la orden de producción.
 - `PA-INV-014` — La cortesía, ¿es merma o salida? El [glosario](../04-glosario.md) la lista como merma; 5.8 la tiene como salida. *Propuesta:* salida, y evaluar si el umbral de autorización cubre también las salidas por cortesía.
 - `PA-INV-015` — La **maduración** quedó sin ubicar al retirar de §15 la fila de producción compleja. ¿Es una orden de producción de larga duración, donde la merma es la pérdida de peso, o queda fuera de alcance?
-- `PA-INV-016` — **Catálogo de permisos de Inventario** (`PRM-INV-nnn`) y perfiles sugeridos, según [`ADR-0006`](../decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md). Reemplaza §12. *Propuestas a retomar:* un solo actor *Cocina / Barra* en §3, alineado con `05`; el perfil sugerido de Estación opera su estación siempre en cantidades, sin costos; el de Supervisor autoriza mermas y reaperturas y ve el importe de lo que autoriza; el de Compras queda en solo lectura; se agrega *Solo lectura / Contador*. Depende de `PA-ACT-007`…`014`.
+- `PA-INV-016` — **Catálogo de permisos de Inventario** (`PRM-INV-nnn`) y perfiles sugeridos, según [`ADR-0006`](../decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md). Reemplaza §12. *Propuestas a retomar:* un solo actor *Cocina / Barra* en §3, alineado con `05`; el perfil sugerido de Estación opera su estación siempre en cantidades, sin costos; el de Supervisor autoriza mermas y reaperturas y ve el importe de lo que autoriza; el de Compras queda en solo lectura; se agrega *Solo lectura / Contador*. El modelo y sus reglas ya están decididos: `RN-ROL-008`…`027`.
 
 ## 17. Checklist de cierre
 

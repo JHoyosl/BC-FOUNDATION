@@ -91,21 +91,29 @@ Tenant (negocio / organización)
 - **Sede** — un local físico. Unidad de operación: inventario, caja, turnos y Gamecenter
   viven aquí. Un tenant puede tener una o muchas.
 - **Zona / Mesa** — la granularidad del lado cliente. El QR identifica una mesa de una sede.
+- **Usuario y vinculación** — una persona del staff tiene un solo usuario de Barscode, que no
+  pertenece a ningún tenant. Trabaja para cada tenant mediante una vinculación, y puede tener
+  varias. Ver [`ADR-0007`](decisiones/ADR-0007-un-usuario-varias-vinculaciones.md).
 
 ### Reglas
 
 - `RN-ARQ-010` — Todo dato de negocio pertenece a exactamente un tenant. No existe dato compartido entre tenants.
 - `RN-ARQ-011` — Todo dato operativo (stock, caja, turnos, pedidos) pertenece además a exactamente una sede.
-- `RN-ARQ-012` — Un usuario del staff pertenece a un tenant y tiene roles asignados por sede. Un mesero de la sede A no opera la sede B salvo asignación explícita. *(Con [`ADR-0006`](decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md), "rol" pasa a ser "perfil"; la asignación sigue siendo por sede.)*
+- `RN-ARQ-012` — *(derogada por `RN-ARQ-016`…`019`)* ~~Un usuario del staff pertenece a un tenant y tiene roles asignados por sede. Un mesero de la sede A no opera la sede B salvo asignación explícita.~~
 - `RN-ARQ-013` — Un cliente final **no** pertenece a un tenant: es un usuario de la plataforma que establece sesiones con sedes. Su cuenta (si la crea) es de Barscode, no del bar.
 - `RN-ARQ-014` — El plan contratado determina qué módulos están habilitados por tenant y, si aplica, por sede.
 - `RN-ARQ-015` — Toda pantalla y todo reporte debe dejar explícito a qué sede corresponde lo que muestra.
+- `RN-ARQ-016` — Una persona del staff tiene un solo usuario de Barscode. El usuario es de la persona: no pertenece a ningún tenant y ningún tenant puede eliminarlo.
+- `RN-ARQ-017` — Un usuario trabaja para un tenant mediante una **vinculación**. Puede tener vinculaciones con varios tenants, independientes entre sí. El tenant la crea por invitación, la suspende o la termina; al terminarla conserva su historial de auditoría.
+- `RN-ARQ-018` — Los perfiles son de cada tenant y se asignan a la vinculación, por sede (`RN-ROL-011`). Un usuario opera en un solo tenant a la vez: en una terminal del negocio, el tenant y la sede los da la terminal; en un dispositivo propio, el usuario elige y puede cambiar sin volver a identificarse. Los permisos de dos tenants nunca se suman.
+- `RN-ARQ-019` — Un tenant no ve las demás vinculaciones de un usuario ni ningún dato suyo en otro tenant.
 
 ### Preguntas abiertas
 
 - `PA-ARQ-001` — ¿Los módulos se contratan por tenant o por sede? (Una cadena podría querer inventario solo en una sede.) Relacionada con `PA-VIS-001` (unidad de cobro).
 - `PA-ARQ-002` — ¿La carta se define a nivel tenant con sobreescritura por sede, o cada sede define la suya? Afecta a `catalogo` y a `pos`.
 - `PA-ARQ-003` — ¿Existe un rol de "franquiciado" con visibilidad parcial entre sedes del mismo tenant?
+- `PA-ARQ-004` — ¿El usuario del staff y el cliente registrado son la misma cuenta de Barscode? El mesero de un bar es cliente de otro en su noche libre. Se resuelve al definir `iam` e `identidad-cliente`.
 
 ---
 

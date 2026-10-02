@@ -42,9 +42,12 @@ y luego código, o ficha–código–ficha–código. **Propuesta:** decidirlo y
 
 ### E-3 · El modelo de permisos aprobado no estaba en el KB 🟡
 El 2026-09-15 se aprobó el modelo base de permisos por módulo y perfiles; vivía solo en `_work/`.
-**Hecho:** registrado como [`ADR-0006`](../decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md).
-**Pendiente:** responder `PA-ACT-007`…`014`, definir el catálogo de Inventario (`PA-INV-016`) y
-reescribir `05-actores-y-roles` §2–3, `RN-ARQ-012`, `RN-ROL-004`, `RN-ROL-005` y la plantilla §12.
+**Hecho:** [`ADR-0006`](../decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md), ampliada el
+2026-10-02 con el árbol de permisos, la validación en el servidor y la evolución del catálogo;
+[`ADR-0007`](../decisiones/ADR-0007-un-usuario-varias-vinculaciones.md) para la persona que
+trabaja en varios negocios; reglas `RN-ROL-008`…`027` y `RN-ARQ-016`…`019`; `05` reescrito;
+plantilla §12 actualizada.
+**Pendiente:** el árbol de permisos de Inventario (`PA-INV-016`).
 
 ### E-4 · El límite de la capa Plataforma dice tres cosas distintas ⏳
 - `RN-ARQ-005`: tenancy, IAM, "configuración" (no es un módulo).
@@ -106,7 +109,7 @@ módulo.
 | D-10 | **Ejemplos de la guía** usaban identificadores reales con otro texto. | ✅ Ahora citan la ficha. |
 | D-11 | **Identificadores sin declarar**: `RES-`, `SUP-`, prefijos que no son módulo, estados de ADR. La guía no llevaba cabecera. | ✅ |
 | D-12 | **Git**: la guía hablaba de ramas `kb/<modulo>`; la práctica era `_work/` sin versionar. | ✅ La guía describe `_work/` y la fuente de la verdad. |
-| D-13 | **Matriz de `05`**: cubre 13 de 20 módulos; se titula "actor × módulo" pero las columnas son roles; Propietario con **L** aunque su rol dice "todo". | ⏳ Se reescribe con `ADR-0006`. |
+| D-13 | **Matriz de `05`**: cubre 13 de 20 módulos; se titula "actor × módulo" pero las columnas son roles; Propietario con **L** aunque su rol dice "todo". | 🟡 Marcada como referencia, no regla. Cada ficha la reemplaza con su árbol de permisos. |
 | D-14 | **Visión**: "el KDS no es opcional" frente a `PA-CAT-006`; "una aplicación móvil para sus clientes" frente a `PA-ALC-004`. `SUP-002` asume POS. | ⏳ |
 | D-15 | **Preguntas duplicadas**: `PA-ALC-003` = `PA-ARQ-011`; `PA-VIS-001` ≈ `PA-ARQ-001`; `PA-ACT-004` abierta aunque ya estaba respondida. | ✅ La primera se fusionó, la segunda quedó enlazada (no son la misma pregunta) y la tercera se cerró. |
 | D-16 | **"Instalado"** se usa 15 veces para un SaaS donde nada se instala. | 🟡 El glosario define *módulo habilitado*. Reemplazar la palabra en los textos queda para la decisión de vocabulario. |
@@ -201,16 +204,16 @@ módulo.
 | Destino | Preguntas |
 |---|---|
 | **Cerrar ya** (la respuesta existe o solo depende de Jorge) | `PA-GUIA-001`, `PA-GUIA-002`, `PA-ALC-005`, `PA-CAT-001` (la ficha ya asume la separación), `PA-VIS-005` |
-| **Con `ADR-0006` (permisos)** | `PA-ACT-001`, `PA-ACT-002`, `PA-ARQ-003`, `PA-ACT-007`…`014` |
+| **Con los perfiles sugeridos de cada ficha** | `PA-ACT-001`, `PA-ACT-002`, `PA-ARQ-003` |
 | **A `ADR-0004` (pagos)** | `PA-CAT-004` |
 | **Diferir a `catalogo`** (bloquean el siguiente módulo) | `PA-ARQ-002`, `PA-GLO-004` |
 | **Diferir a `salon-mesas` / `pos` / `pedidos-qr`** | `PA-GLO-001`, `PA-GLO-002`, `PA-ALC-002`, `PA-ALC-004`, `PA-ACT-006`, `PA-CAT-006` |
-| **Diferir a `tenancy` / `iam`** | `PA-VIS-001`, `PA-ARQ-001`, `PA-ACT-003`, `PA-ACT-005` |
+| **Diferir a `tenancy` / `iam`** | `PA-VIS-001`, `PA-ARQ-001`, `PA-ACT-003`, `PA-ACT-005`, `PA-ARQ-004` |
 | **Diferir a `localizacion-co`** | `PA-ARQ-010`, `PA-ARQ-011`, `PA-ARQ-012`, `PA-ARQ-013` |
 | **Decidir al revisar el catálogo** (E-4) | `PA-CAT-002`, `PA-CAT-003`, `PA-CAT-005` |
 
-Ya resueltas en la Sesión 5: `PA-ACT-004` (cerrada por `ADR-0006`) y `PA-ALC-003` (fusionada con
-`PA-ARQ-011`).
+Ya resueltas en la Sesión 5: `PA-ACT-004` y `PA-ACT-007`…`014` (cerradas por `ADR-0006`) y
+`PA-ALC-003` (fusionada con `PA-ARQ-011`).
 
 ---
 
@@ -229,7 +232,7 @@ Las decide Jorge. Cada una sale como ADR o como cambio en `03-principios`.
 
 | # | Decisión | Sale como |
 |---|---|---|
-| 1 | Evolución del catálogo de permisos: `PA-ACT-007`…`014` (E-3) | Ampliación de `ADR-0006` |
+| 1 | ✅ Evolución del catálogo de permisos, árbol, validación e identidad entre negocios (E-3) | `ADR-0006` ampliada + `ADR-0007` |
 | 2 | Cuándo se construye y qué es la plataforma mínima (E-1, E-2) | Revisión de `ADR-0005` |
 | 3 | Lista única de plataforma; dueño del QR, la sesión y la identidad del cliente (E-4) | ADR nuevo + catálogo |
 | 4 | Estado "diferida" y registro único de preguntas (E-5, §6) | Guía |
@@ -256,7 +259,7 @@ Las decide Jorge. Cada una sale como ADR o como cambio en `03-principios`.
 ```
 Etapa 0 ──► Etapa 2 ──► Etapa 3 ──► Etapa 4 ──► catalogo
               │            ▲
-              └─ la decisión 1 (permisos) bloquea PA-INV-016
+              └─ la decisión 1 (permisos) ya está tomada: PA-INV-016 quedó desbloqueada
 ```
 
-La Etapa 3 puede avanzar en paralelo con la 2, salvo los permisos.
+La Etapa 3 puede avanzar en paralelo con la 2.

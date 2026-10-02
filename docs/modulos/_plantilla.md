@@ -73,8 +73,21 @@ explícitamente.
 
 ## 12. Permisos
 
-Qué puede hacer cada rol en este módulo. Debe cuadrar con la matriz de
-[`05-actores-y-roles.md`](../05-actores-y-roles.md).
+El **árbol de permisos** del módulo: grupo → permiso
+([`ADR-0006`](../decisiones/ADR-0006-permisos-por-modulo-y-perfiles.md)). Por cada permiso:
+
+| Código | Permiso | Qué permite | Sensible | Depende de | Origen | Estado |
+|---|---|---|---|---|---|---|
+
+- **Código:** `PRM-<MOD>-<nnn>`. No se reutiliza.
+- **Sensible:** sí, si expone importes o costos, autoriza, anula, reabre o configura (`RN-ROL-015`).
+- **Origen:** de qué permiso nace, si viene de una división.
+- **Estado:** activo o retirado, con fecha.
+
+Después, la matriz de **perfiles sugeridos**: qué permisos trae cada uno. Los perfiles
+sugeridos salen de [`05-actores-y-roles.md`](../05-actores-y-roles.md).
+
+**Ninguna función del módulo se construye sin su código aquí.**
 
 ## 13. Reportes e información que entrega
 
@@ -103,6 +116,7 @@ Numeradas `PA-<MOD>-nnn`. **Mientras quede una, el módulo no puede estar 🟢.*
 - [ ] Todos los importes llevan moneda
 - [ ] Todo término nuevo está en el glosario
 - [ ] Toda historia tiene al menos un criterio de rechazo
+- [ ] Toda acción del módulo tiene su permiso, con código, en la sección 12
 - [ ] No quedan preguntas abiertas (o las que quedan se escalaron a ADR)
 - [ ] La ficha se entiende sin abrir la ficha de otro módulo
 - [ ] Revisada y aprobada por Jorge
